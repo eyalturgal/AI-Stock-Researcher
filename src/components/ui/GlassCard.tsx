@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 
-// The basic building block of the site: a glass panel with rounded corners.
+// A glass panel. Glass is used for things that float above the page, like
+// the chart. Most other content sits straight on the page with no box.
 // "children" is whatever you put between <GlassCard> and </GlassCard>.
-// "className" lets a page add extra classes, for example to make one card wider.
+// "className" lets a page add extra classes, for example to make it wider.
 export function GlassCard({
   children,
   className = "",
@@ -11,25 +12,14 @@ export function GlassCard({
   className?: string;
 }) {
   return (
-    <section className={`glass rounded-3xl p-5 sm:p-6 ${className}`}>
+    <section className={`glass rounded-3xl p-5 sm:p-7 ${className}`}>
       {children}
     </section>
   );
 }
 
-// A title with the small gradient bar in front of it.
-export function SectionTitle({ children }: { children: ReactNode }) {
-  return (
-    <h2 className="flex items-center gap-2.5 text-base font-semibold text-ink">
-      <span aria-hidden="true" className="brand-bar" />
-      {children}
-    </h2>
-  );
-}
-
-// The small title row at the top of a card, with room for a link or button
-// on the right side.
-export function CardHeader({
+// The title row of a section, with room for a link on the right side.
+export function SectionHeader({
   title,
   action,
 }: {
@@ -37,8 +27,8 @@ export function CardHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-4 flex items-center justify-between gap-4">
-      <SectionTitle>{title}</SectionTitle>
+    <div className="mb-5 flex items-baseline justify-between gap-4">
+      <h2 className="text-lg font-semibold tracking-tight text-ink">{title}</h2>
       {action}
     </div>
   );

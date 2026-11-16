@@ -27,7 +27,7 @@ export function ThemeToggle() {
       onClick={switchTheme}
       aria-label="Switch between dark and light theme"
       title="Switch theme"
-      className="glass-button glass size-9 p-0"
+      className="glass-button size-9 border-line p-0"
     >
       {/* Sun: shown in the dark theme, because pressing brings the light. */}
       <svg

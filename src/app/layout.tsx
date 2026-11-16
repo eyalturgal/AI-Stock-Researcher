@@ -4,7 +4,6 @@ import { siteConfig } from "@/config/site";
 import { stockConfig } from "@/config/stock";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StockHeader } from "@/components/StockHeader";
-import { TabNav } from "@/components/TabNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.css";
 
@@ -36,7 +35,7 @@ const applySavedTheme = `(function(){try{var t=localStorage.getItem("theme");if(
 
 // The layout wraps every page on the site. Everything here (header, stock
 // panel, tabs, footer) stays on screen while "children", the page for the
-// current tab, swaps underneath.
+// current tab, swaps underneath. The tabs themselves live in the header.
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // data-theme="dark" is the default. suppressHydrationWarning tells React
@@ -52,11 +51,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body>
         <div className="backdrop" aria-hidden="true" />
-        <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-5 px-4 py-5 sm:gap-6 sm:px-6 sm:py-8">
+        <div className="flex min-h-screen flex-col">
           <SiteHeader />
           <StockHeader />
-          <TabNav />
-          <main className="flex-1">{children}</main>
+          <main className="shell flex-1 pb-20">{children}</main>
           <SiteFooter />
         </div>
       </body>

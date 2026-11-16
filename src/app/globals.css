@@ -13,6 +13,10 @@
    The palette mixes two moods:
    - AI and futuristic: cyan and violet
    - Markets and money: emerald green and gold
+
+   Layout idea: the page is open. Most content sits straight on the page,
+   separated by space and thin lines. Glass is saved for the few things that
+   float above the page: the top bar and the chart panel.
    ========================================================================== */
 
 /* Design tokens. Tailwind turns each color into classes:
@@ -59,11 +63,13 @@
   /* Emerald to cyan to violet. The signature of the site. */
   --brand-gradient: linear-gradient(120deg, #34d399, #22d3ee 50%, #a78bfa);
 
-  /* The soft blobs of color behind the page */
-  --blob-emerald: rgba(16, 185, 129, 0.28);
-  --blob-violet: rgba(139, 92, 246, 0.28);
-  --blob-cyan: rgba(34, 184, 217, 0.18);
-  --blob-gold: rgba(245, 180, 60, 0.12);
+  /* The glow behind the top of the page */
+  --glow-emerald: rgba(16, 185, 129, 0.26);
+  --glow-cyan: rgba(34, 184, 217, 0.2);
+  --glow-violet: rgba(139, 92, 246, 0.2);
+
+  /* The top bar: the page color, slightly see-through */
+  --bar-fill: rgba(6, 9, 18, 0.62);
 
   /* Glass panels */
   --glass-fill: linear-gradient(
@@ -77,12 +83,7 @@
 
   /* Things you can press: hover and selected states */
   --press-hover: rgba(255, 255, 255, 0.07);
-  --press-selected: linear-gradient(
-    120deg,
-    rgba(52, 211, 153, 0.26),
-    rgba(34, 211, 238, 0.2) 50%,
-    rgba(167, 139, 250, 0.28)
-  );
+  --press-selected: rgba(255, 255, 255, 0.14);
   --press-selected-border: rgba(255, 255, 255, 0.2);
 }
 
@@ -113,10 +114,11 @@
   --color-chart-fill-bottom: rgba(11, 135, 168, 0);
   --color-chart-grid: rgba(12, 19, 34, 0.07);
 
-  --blob-emerald: rgba(16, 185, 129, 0.3);
-  --blob-violet: rgba(139, 92, 246, 0.28);
-  --blob-cyan: rgba(34, 184, 217, 0.26);
-  --blob-gold: rgba(245, 180, 60, 0.26);
+  --glow-emerald: rgba(16, 185, 129, 0.28);
+  --glow-cyan: rgba(34, 184, 217, 0.26);
+  --glow-violet: rgba(139, 92, 246, 0.22);
+
+  --bar-fill: rgba(238, 242, 248, 0.68);
 
   --glass-fill: linear-gradient(
     140deg,
@@ -128,13 +130,8 @@
   --glass-shadow: 0 24px 60px -30px rgba(30, 41, 90, 0.4);
 
   --press-hover: rgba(12, 19, 34, 0.06);
-  --press-selected: linear-gradient(
-    120deg,
-    rgba(52, 211, 153, 0.4),
-    rgba(34, 211, 238, 0.32) 50%,
-    rgba(167, 139, 250, 0.4)
-  );
-  --press-selected-border: rgba(12, 19, 34, 0.12);
+  --press-selected: rgba(12, 19, 34, 0.09);
+  --press-selected-border: rgba(12, 19, 34, 0.14);
 }
 
 /* Show or hide something depending on the theme. Used by the theme button
@@ -149,23 +146,43 @@
    -------------------------------------------------------------------------- */
 
 body {
+  position: relative;
   background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
 }
 
-/* Soft blobs of color fixed behind everything. Glass needs something
-   colorful behind it to blur, otherwise it just looks gray. */
+/* A wide glow of color behind the top of the page only. It gives the
+   opening screen some atmosphere, then fades out so the rest of the page
+   stays calm and easy to read. It scrolls away with the page. */
 .backdrop {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 46rem;
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(46rem 34rem at 6% -6%, var(--blob-emerald), transparent 62%),
-    radial-gradient(44rem 34rem at 100% 6%, var(--blob-violet), transparent 62%),
-    radial-gradient(42rem 30rem at 62% 58%, var(--blob-cyan), transparent 65%),
-    radial-gradient(38rem 28rem at 4% 100%, var(--blob-gold), transparent 62%);
+    radial-gradient(60rem 30rem at 0% 0%, var(--glow-emerald), transparent 70%),
+    radial-gradient(52rem 28rem at 45% -10%, var(--glow-cyan), transparent 70%),
+    radial-gradient(50rem 30rem at 100% 0%, var(--glow-violet), transparent 70%);
+}
+
+/* The width of the page content. Wide on big screens, with side padding
+   that grows with the screen. Every section uses this so edges line up. */
+@utility shell {
+  width: 100%;
+  max-width: 96rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+
+  @media (width >= 40rem) {
+    padding-inline: 2rem;
+  }
+  @media (width >= 64rem) {
+    padding-inline: 3rem;
+  }
 }
 
 /* A clear outline for keyboard users, on anything that can be focused. */
@@ -226,40 +243,55 @@ body {
   }
 }
 
+/* The bar across the top of the page. Blurs what scrolls underneath it. */
+@utility glass-bar {
+  background: var(--bar-fill);
+  border-bottom: 1px solid var(--color-line);
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+}
+
+/* A tab in the top bar. The open tab gets a line underneath it. */
+@utility tab-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  padding-inline: 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--color-ink-faint);
+  transition: color 150ms ease;
+
+  &:hover {
+    color: var(--color-ink);
+  }
+
+  &[aria-current="page"] {
+    color: var(--color-ink);
+  }
+
+  &[aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 9999px;
+    background: var(--color-ink);
+  }
+}
+
 /* --------------------------------------------------------------------------
-   Brand touches: small uses of the emerald, cyan and violet gradient
+   Brand touch: the emerald, cyan and violet gradient, used in one place
+   only (the site mark) so it stays special.
    -------------------------------------------------------------------------- */
 
-/* Fills something with the brand gradient (the site mark). */
 @utility brand-fill {
   background: var(--brand-gradient);
   color: var(--color-on-brand);
-}
-
-/* A short gradient bar that sits in front of a title. */
-@utility brand-bar {
-  display: inline-block;
-  width: 0.25rem;
-  height: 1rem;
-  border-radius: 9999px;
-  background: var(--brand-gradient);
-}
-
-/* A thin gradient line along the top edge of a panel. */
-@utility brand-edge {
-  position: relative;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: -1px;
-    left: 2rem;
-    right: 2rem;
-    height: 2px;
-    border-radius: 9999px;
-    background: var(--brand-gradient);
-    opacity: 0.9;
-  }
 }
 
 /* People who ask their device for less motion get no transitions. */

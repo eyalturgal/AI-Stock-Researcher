@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { stockConfig } from "@/config/stock";
 import { sampleNews, type NewsCategory } from "@/data/sample";
-import { CardHeader, GlassCard } from "@/components/ui/GlassCard";
+import { SectionHeader } from "@/components/ui/GlassCard";
 import { NewsList } from "@/components/NewsList";
 
 export const metadata: Metadata = { title: "News" };
@@ -13,17 +13,17 @@ const sections: { category: NewsCategory; title: string }[] = [
   { category: "Market", title: "Top market news" },
 ];
 
-// The News tab: one card per kind of news.
+// The News tab: one column per kind of news.
 export default function NewsPage() {
   return (
-    <div className="grid gap-5 sm:gap-6 lg:grid-cols-3">
+    <div className="grid gap-x-14 gap-y-14 lg:grid-cols-3">
       {sections.map((section) => (
-        <GlassCard key={section.category}>
-          <CardHeader title={section.title} />
+        <section key={section.category}>
+          <SectionHeader title={section.title} />
           <NewsList
             items={sampleNews.filter((item) => item.category === section.category)}
           />
-        </GlassCard>
+        </section>
       ))}
     </div>
   );

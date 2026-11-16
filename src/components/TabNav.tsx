@@ -1,6 +1,6 @@
 "use client";
 // Runs in the browser because it needs to know which page is open right
-// now, in order to highlight the matching tab.
+// now, in order to mark the matching tab.
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -10,14 +10,14 @@ export function TabNav() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Sections" className="max-w-full overflow-x-auto">
-      <ul className="glass inline-flex gap-1 rounded-full p-1.5">
+    <nav aria-label="Sections" className="h-full">
+      <ul className="flex h-full gap-6">
         {siteConfig.tabs.map((tab) => (
-          <li key={tab.href}>
+          <li key={tab.href} className="h-full">
             <Link
               href={tab.href}
               aria-current={pathname === tab.href ? "page" : undefined}
-              className="glass-button"
+              className="tab-link"
             >
               {tab.label}
             </Link>
