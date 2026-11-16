@@ -26,3 +26,4 @@ Then open http://localhost:3000 in a browser.
 - [Next.js](https://nextjs.org) and [React](https://react.dev)
 - [TypeScript](https://www.typescriptlang.org)
 - [Tailwind CSS](https://tailwindcss.com)
+- [TradingView Lightweight Charts](https://www.tradingview.com/lightweight-charts/)

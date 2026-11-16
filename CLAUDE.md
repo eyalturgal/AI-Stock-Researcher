@@ -22,7 +22,10 @@ Update ROADMAP.md:
 ## Tech stack
 - Next.js (App Router), React, TypeScript, Tailwind CSS. Hosted on Vercel.
 - Before writing Next.js code, follow AGENTS.md: this Next.js version is newer than most examples online, so read the matching guide in `node_modules/next/dist/docs/` first.
-- Site-wide settings live in `src/config/site.ts`.
+- Site-wide settings live in `src/config/site.ts`. The tracked stock lives in `src/config/stock.ts`, and that is the only file allowed to name a ticker or company.
+- Design tokens (colors, the `glass` and `glass-button` styles) live in `src/app/globals.css`. Components use the token names, never raw color codes.
+- Reusable pieces live in `src/components`. Each tab is a page in `src/app`.
+- `src/data/sample.ts` is placeholder data for Phase 1. It gets replaced by real data in Phase 2. While any sample data is on the site, it must be labeled as sample.
 - Check work with `npm run lint` and `npm run build` before committing.
 
 ## Project rules
