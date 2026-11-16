@@ -1,25 +1,135 @@
 @import "tailwindcss";
 
-/* Placeholder colors for the hello world page.
-   The real design system (colors, fonts, glass components) is a Phase 1 task. */
-:root {
-  --background: #07090f;
-  --foreground: #f4f4f5;
+/* ==========================================================================
+   DESIGN SYSTEM
+   Every color, and the "liquid glass" look, is defined once in this file.
+   Components use the names (text-ink, bg-canvas, glass ...) and never type
+   raw color codes, so the whole site can be restyled from here.
+   ========================================================================== */
+
+/* Design tokens. Tailwind turns each one into classes:
+   --color-ink becomes text-ink, bg-ink, border-ink and so on. */
+@theme {
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Page background */
+  --color-canvas: #070a12;
+
+  /* Text, from strongest to quietest */
+  --color-ink: #f2f4f8;
+  --color-ink-soft: #b6bdcb;
+  --color-ink-faint: #8a92a3;
+
+  /* Hairlines and borders */
+  --color-line: rgba(255, 255, 255, 0.1);
+
+  /* The one accent color: links, focus rings and the price line */
+  --color-accent: #3987e5;
+
+  /* Reserved for "price went up" and "price went down". Never decoration. */
+  --color-up: #0ca30c;
+  --color-down: #d03b3b;
+
+  /* Chart parts (read by the chart component) */
+  --color-chart-line: #3987e5;
+  --color-chart-fill-top: rgba(57, 135, 229, 0.32);
+  --color-chart-fill-bottom: rgba(57, 135, 229, 0);
+  --color-chart-grid: rgba(255, 255, 255, 0.06);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+
+html {
+  color-scheme: dark;
 }
 
 body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Soft blobs of color fixed behind everything. Glass needs something
+   colorful behind it to blur, otherwise it just looks gray. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background:
-    radial-gradient(60rem 40rem at 20% 10%, rgb(56 189 248 / 0.18), transparent 60%),
-    radial-gradient(50rem 35rem at 85% 90%, rgb(139 92 246 / 0.18), transparent 60%),
-    var(--background);
-  background-attachment: fixed;
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+    radial-gradient(48rem 34rem at 12% -5%, rgba(56, 189, 248, 0.22), transparent 62%),
+    radial-gradient(42rem 32rem at 95% 20%, rgba(139, 92, 246, 0.2), transparent 62%),
+    radial-gradient(46rem 30rem at 50% 110%, rgba(45, 212, 191, 0.12), transparent 62%);
+}
+
+/* A clear outline for keyboard users, on anything that can be focused. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Liquid glass
+   Three ingredients: a see-through fill, a blur of whatever is behind,
+   and a thin bright edge on top that reads as light hitting the glass.
+   -------------------------------------------------------------------------- */
+
+/* Panels and cards */
+@utility glass {
+  background: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.035)
+  );
+  border: 1px solid var(--color-line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 24px 60px -28px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+}
+
+/* Buttons, tabs and other small things you can press */
+@utility glass-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+
+  &:hover {
+    color: var(--color-ink);
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  /* The selected state: the current tab, or the chosen time range. */
+  &[aria-current="page"],
+  &[aria-pressed="true"] {
+    color: var(--color-ink);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* People who ask their device for less motion get no transitions. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }

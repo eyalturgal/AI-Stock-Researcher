@@ -1,19 +1,90 @@
-import { siteConfig } from "@/config/site";
+import Link from "next/link";
+import { stockConfig } from "@/config/stock";
+import {
+  sampleKeyStats,
+  sampleNews,
+  samplePrices,
+  sampleQuote,
+} from "@/data/sample";
+import { formatPrice } from "@/lib/format";
+import { CardHeader, GlassCard } from "@/components/ui/GlassCard";
+import { StatRow } from "@/components/ui/StatTile";
+import { NewsList } from "@/components/NewsList";
+import { PriceChart } from "@/components/PriceChart";
 
-// The home page. This is the "hello world" for Phase 0: its only job is to
-// prove the site builds and deploys. The real layout arrives in Phase 1.
-export default function Home() {
+// The Overview tab: a little of everything, with links to the full tabs.
+export default function OverviewPage() {
+  const { currency } = stockConfig;
+
+  // Two stats worked out from the price history, then the rest.
+  const keyStats = [
+    {
+      label: "Previous close",
+      value: formatPrice(sampleQuote.previousClose, currency),
+    },
+    {
+      label: "52-week range",
+      value: `${formatPrice(sampleQuote.yearLow, currency)} to ${formatPrice(sampleQuote.yearHigh, currency)}`,
+    },
+    ...sampleKeyStats,
+  ];
+
   return (
-    <main className="flex flex-1 items-center justify-center px-6 py-24">
-      <div className="w-full max-w-xl rounded-3xl border border-white/15 bg-white/5 p-10 text-center shadow-2xl backdrop-blur-xl">
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-          {siteConfig.name}
-        </h1>
-        <p className="mt-4 text-lg leading-8 text-zinc-300">
-          {siteConfig.description}
-        </p>
-        <p className="mt-8 text-sm text-zinc-400">{siteConfig.status}</p>
-      </div>
-    </main>
+    <div className="grid gap-5 sm:gap-6 lg:grid-cols-3">
+      <GlassCard className="lg:col-span-2">
+        <CardHeader
+          title="Price"
+          action={
+            <Link href="/chart" className="text-sm text-ink-soft hover:text-ink">
+              Full chart
+            </Link>
+          }
+        />
+        <PriceChart data={samplePrices} currency={currency} />
+      </GlassCard>
+
+      <GlassCard>
+        <CardHeader
+          title="Key stats"
+          action={
+            <Link href="/metrics" className="text-sm text-ink-soft hover:text-ink">
+              All metrics
+            </Link>
+          }
+        />
+        <dl>
+          {keyStats.map((stat) => (
+            <StatRow key={stat.label} stat={stat} />
+          ))}
+        </dl>
+      </GlassCard>
+
+      <GlassCard className="lg:col-span-2">
+        <CardHeader
+          title="Latest news"
+          action={
+            <Link href="/news" className="text-sm text-ink-soft hover:text-ink">
+              All news
+            </Link>
+          }
+        />
+        <NewsList items={sampleNews.slice(0, 3)} />
+      </GlassCard>
+
+      <GlassCard>
+        <CardHeader title={`About ${stockConfig.shortName}`} />
+        <p className="text-sm leading-6 text-ink-soft">{stockConfig.about}</p>
+        <ul className="mt-4 flex flex-wrap gap-2">
+          {stockConfig.keywords.map((keyword) => (
+            <li
+              key={keyword}
+              className="rounded-full border border-line px-2.5 py-1 text-xs text-ink-soft"
+            >
+              {keyword}
+            </li>
+          ))}
+        </ul>
+      </GlassCard>
+    </div>
   );
 }
