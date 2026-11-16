@@ -7,13 +7,13 @@ import { ChangePill } from "@/components/ui/ChangePill";
 // It sits above the tabs on every page.
 export function StockHeader() {
   return (
-    <section className="glass rounded-3xl p-5 sm:p-7">
+    <section className="glass brand-edge rounded-3xl p-5 sm:p-7">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-center gap-4">
           {/* A plain tile with the ticker, in place of a company logo. */}
           <div
             aria-hidden="true"
-            className="glass flex size-14 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold tracking-wide text-ink"
+            className="flex size-14 shrink-0 items-center justify-center rounded-2xl border border-gold/40 bg-gold/15 text-sm font-semibold tracking-wide text-ink"
           >
             {stockConfig.ticker}
           </div>

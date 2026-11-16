@@ -17,6 +17,16 @@ export function GlassCard({
   );
 }
 
+// A title with the small gradient bar in front of it.
+export function SectionTitle({ children }: { children: ReactNode }) {
+  return (
+    <h2 className="flex items-center gap-2.5 text-base font-semibold text-ink">
+      <span aria-hidden="true" className="brand-bar" />
+      {children}
+    </h2>
+  );
+}
+
 // The small title row at the top of a card, with room for a link or button
 // on the right side.
 export function CardHeader({
@@ -28,7 +38,7 @@ export function CardHeader({
 }) {
   return (
     <div className="mb-4 flex items-center justify-between gap-4">
-      <h2 className="text-base font-semibold text-ink">{title}</h2>
+      <SectionTitle>{title}</SectionTitle>
       {action}
     </div>
   );
