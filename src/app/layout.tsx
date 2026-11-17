@@ -5,6 +5,7 @@ import { stockConfig } from "@/config/stock";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StockHeader } from "@/components/StockHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -57,6 +58,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main className="shell flex-1 pb-20">{children}</main>
           <SiteFooter />
         </div>
+        {/* Counts page views for Vercel Web Analytics: anonymous, no cookies.
+            It only collects once switched on in the project's Analytics tab
+            on Vercel. */}
+        <Analytics />
       </body>
     </html>
   );

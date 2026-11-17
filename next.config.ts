@@ -11,9 +11,11 @@ const isDev = process.env.NODE_ENV === "development";
 
 const contentSecurityPolicy = [
   "default-src 'self'",
-  // Next.js and the theme script need inline scripts. The development
-  // server also needs eval. TradingView's widget scripts come from s3.
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://s3.tradingview.com`,
+  // Next.js and the theme script need inline scripts. TradingView's widget
+  // scripts come from s3. The development server also needs eval, and
+  // Vercel Web Analytics loads a debug script from its own site there. On
+  // the live site its script comes from this site.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""} https://s3.tradingview.com`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
