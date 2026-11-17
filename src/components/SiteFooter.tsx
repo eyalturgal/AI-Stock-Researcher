@@ -47,6 +47,10 @@ export function SiteFooter() {
             </>
           ) : null}
         </p>
+        <p className="mt-1">
+          Visits are counted anonymously by Vercel Web Analytics, which uses
+          no cookies.
+        </p>
       </div>
     </footer>
   );
