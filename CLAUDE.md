@@ -13,6 +13,8 @@ Update ROADMAP.md:
 
 ## How to work with me
 - I'm a beginner, currently doing CS50. I want to understand everything we build.
+- Workflows, automations and agents: I want to learn them, but only as a real need comes up. If a task needs one, build it and teach it. If not, don't force it.
+- AI costs: start free, then small. I'll decide the budget later.
 - Explain decisions briefly and in plain language: what we're doing, why, and what the alternatives were.
 - When something is a rabbit hole I haven't learned yet, teach the concept before writing the code.
 - Push back if I'm overscoping or skipping a phase.
@@ -28,7 +30,7 @@ Update ROADMAP.md:
 - The themes have different characters. Light: airy, soft color wash at the top, see-through glass. Dark: a trading desk, flat neutral charcoal, no colored glow, solid panels. Do not add glows or gradients to the dark theme.
 - There are two themes, light (default) and dark. Any new color must get a value for both in `globals.css`, and every visual change must be checked in both.
 - Reusable pieces live in `src/components`. Each tab is a page in `src/app`.
-- Data: `src/lib/sec.ts` fetches from the SEC (server only, cached), `src/lib/financials.ts` is the math, `src/lib/stats.ts` formats figures for display, `src/lib/filings.ts` turns the SEC's filing list into labeled news items. Prices, charts and news coverage come from TradingView widgets (`src/components/TradingViewWidget.tsx`). There is no price data in our own code.
+- Data: `src/lib/sec.ts` fetches from the SEC (server only, cached, paced under the SEC's limit of 10 requests a second), `src/lib/financials.ts` is the math, `src/lib/stats.ts` formats figures for display, `src/lib/filings.ts` turns the SEC's filing list into labeled news items, `src/lib/documents.ts` reads attachments and titles from SEC documents. `src/lib/newsroom.ts` fetches the company's newsroom feed and `src/lib/feed.ts` parses it. The newsroom feed and the peer companies are set in `src/config/stock.ts`. Prices, charts and news coverage come from TradingView widgets (`src/components/TradingViewWidget.tsx`). There is no price data in our own code.
 - The SEC needs the `SEC_USER_AGENT` setting (site name, a space, a contact email). Locally it lives in `.env.local`, which is never committed. On Vercel it is an Environment Variable. Never write the email in code or docs.
 - No placeholder data is left on the site. Anything shown before its real source exists must be labeled as a placeholder.
 - Check work with `npm run lint` and `npm run build` before committing.
@@ -41,6 +43,6 @@ Update ROADMAP.md:
 - Never hard-code a ticker or company name. Everything comes from one config file.
 - API keys and secrets stay server-side, in environment variables, never committed.
 - Every external API must be cached and must have an error fallback.
-- Check data source terms allow public display, and credit sources on the site.
+- Check data source terms allow public display, and credit sources on the site. Use the `check-data-source` skill (`.claude/skills/check-data-source/SKILL.md`) for every new source.
 - AI-written research is a research aid, not financial advice. It must show its sources, carry a "not financial advice" note, and never tell anyone to buy or sell.
 - When I repeat a process that will be needed again (e.g. setting up a stock), suggest saving it as a reusable skill, command, subagent or script.

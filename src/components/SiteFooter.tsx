@@ -1,3 +1,5 @@
+import { stockConfig } from "@/config/stock";
+
 // The bottom of every page: the "not advice" note and credits for the
 // tools and data the site uses. Each new data source gets credited here.
 export function SiteFooter() {
@@ -29,6 +31,21 @@ export function SiteFooter() {
             U.S. Securities and Exchange Commission
           </a>
           .
+          {stockConfig.newsroom.feedUrl ? (
+            <>
+              {" "}
+              Company announcements come from{" "}
+              <a
+                href={stockConfig.newsroom.pageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ink-soft underline underline-offset-2 hover:text-ink"
+              >
+                {stockConfig.shortName}&apos;s newsroom
+              </a>
+              , used for non-commercial purposes.
+            </>
+          ) : null}
         </p>
       </div>
     </footer>
