@@ -6,8 +6,8 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 3 (News), extended with three sub-steps Eyal asked for: the database (3.9), friendly titles (3.10) and news sub-tabs (3.11)
-- **Next action:** Claude: start 3.10, friendly titles, on Eyal's go
+- **Current phase:** Phase 3 (News), extended with three sub-steps Eyal asked for. The database (3.9) and friendly titles (3.10) are done. News sub-tabs (3.11) is the last one
+- **Next action:** Claude: start 3.11, news sub-tabs, on Eyal's go. Starting points: read the Next.js guide on layouts and nested pages in `node_modules/next/dist/docs/` first; keep the list of sub-tabs in `src/config/site.ts`; `/news` keeps a short version of every section, and each sub-page (Filings, Announcements, Industry, Coverage) shows more items. Announcements can go further back than the feed's 20 items, from the database history
 - **Blocked on:** nothing
 - **Last updated:** 2026-11-17
 
@@ -116,7 +116,7 @@ Every item also gets a **topic** (earnings, product, leadership, legal, deals, a
 - [x] 3.7 Where news is stored: decided in 3.2. A Postgres database on Neon's free plan, filled by a scheduled job on GitHub Actions. Set up at the start of Phase 5, when something first needs storing
 - [x] 3.8 News tab laid out by category, with every source credited. Our own sections come first (official filings, company announcements, industry), TradingView's coverage after. Keyword filtering is dropped: our code holds no media items until Phase 5, and then the AI judges what is relevant
 - [x] 3.9 Database: Postgres on Neon's free plan (Eyal chose it, 2026-11-17; moved up from Phase 5). First jobs: keep each filing's attachment titles once they are read, so the SEC is not asked again on every refresh, and keep the newsroom's history, since its feed only holds the last 20 items. Done: SEC requests per build went from 46 to 9
-- [ ] 3.10 Friendly titles (Eyal's request): use the company's own attachment title as the headline when there is one ("NVIDIA Announces CEO Transition" in place of "Leadership or board change"), turn ALL-CAPITAL titles into normal case, and trim legal wording. AI rewrites what rules cannot fix, in Phase 5
+- [x] 3.10 Friendly titles (Eyal's request): use the company's own attachment title as the headline when there is one ("NVIDIA Announces CEO Transition" in place of "Leadership or board change"), turn ALL-CAPITAL titles into normal case, and trim legal wording. AI rewrites what rules cannot fix, in Phase 5. Done: our label now sits under the headline on an "SEC filing" line, and the rules (in `src/lib/documents.ts`) were tested on every stored title
 - [ ] 3.11 News sub-tabs (Eyal's request): each section opens into its own page with more items (Filings, Announcements, Industry, Coverage), reached from a row of sub-tabs under the main tabs
 
 **Eyal's steps for 3.9:**
@@ -231,7 +231,6 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 
 Things I don't know how to do yet. Dive into each one when its phase comes up, and move the answer to the decision log.
 
-- [ ] Which price route to take: public with TradingView widgets, private with a free API, or public with a paid plan (research is under Phase 2)
 - [ ] How "live" updates should work (polling vs websockets) within free limits
 - [ ] How far back each kind of data goes on the source we pick. Expectation to confirm in Phase 2: years of daily prices, and reported financials (revenue, earnings) from SEC filings going back many years. P/E over time is not downloaded, it is worked out from the price history and the earnings history
 - [ ] Is OpenBB worth using as the data layer, or simpler to call APIs directly?
@@ -296,6 +295,8 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-17 | Direction check from Eyal: do not rebuild what leaders already do well (charts stay with TradingView). The site's own angle is AI tools that help people understand the data, and pulling together data that single sources lack | Keeps effort on what makes the site different. Every new feature should be judged against this |
 | 2026-11-17 | SEC EDGAR is the source for filings and reported financials | It is the only source checked that is free, needs no key and explicitly allows reuse on a public site. Every route for prices uses it |
 | 2026-11-16 | Hosting stays on Vercel's free plan. Eyal will pay if a limit gets in the way | Removes hosting cost as a reason to compromise the design |
+| 2026-11-17 | A filing's headline is the company's own title when the filing carries a press release, with our plain-language label on an "SEC filing" line under it | Eyal's request. The company's title says what happened, and our label still says what kind of filing it is |
+| 2026-11-17 | Title cleanup rules run when a title is shown, not when it is stored | Stored titles stay exactly as the company wrote them, and a better rule fixes every title at once. What rules cannot fix waits for the AI step in Phase 5 |
 
 ---
 
@@ -321,3 +322,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17 (eleventh session):** Saved the data source check as a skill. Researched peer companies (Eyal suggested AMD, Intel, ASML, TSMC and the SMH ETF) and picked seven rivals and suppliers. Built 3.4 and the industry section: the newsroom feed as "Company announcements", attached press releases listed under each filing with their real titles, and peers' newsworthy filings, including foreign companies' 6-K reports. The title rule was tuned on real documents until junk titles like "NEWS RELEASE" and an address line were gone. Added the latest announcements to the Overview and credited the newsroom in the footer. Checked both themes on desktop and phone, no errors. Eyal raised MongoDB and paid hosting: logged as a Phase 5 choice with Claude's view. Merged pull request 9. Next: Eyal's verdict on the News tab, then Phase 4.
 - **2026-11-17 (twelfth session):** Eyal asked for friendly titles, news sub-tabs and the database, raised partnerships as something worth tracking, and asked about the SEC's limits. Answered the limits from the SEC's own pages. Checked a source for partnerships: NVIDIA's quarterly 13F holdings report lists 8 companies it owns shares in. Added 3.9 to 3.11 to Phase 3 and partners to Phase 7, with the database steps for Eyal. No code changed. Next: Eyal checks the site and creates the database.
 - **2026-11-17 (thirteenth session):** Eyal created the Neon database in Vercel, connected it for Preview and Production, and switched its settings to Secret. Built 3.9 with Drizzle: two tables (filing details and newsroom items), a first migration written as plain SQL, table changes applied at the start of each build, and reads and writes that fall back to the live sources on any failure. Measured SEC requests per build: 46 with an empty database, 9 after. Tested a build with no database setting and one with the database stopped: both built the full site. Merged pull request 11. Next: 3.10, friendly titles.
+- **2026-11-17 (fourteenth session):** Eyal confirmed the live build reports "Database tables are up to date", so the live site uses the Neon database. Built 3.10, friendly titles. When a filing carries a press release, the release's title is now the headline ("NVIDIA Announces CEO Transition"), with our plain-language label under it. New cleanup rules: titles written all in capitals become normal case (keeping short forms like AI and company names from the stock config like AMD), legal tails are cut, long financial statement titles are shortened, and a repeated date at the end is dropped. Tested the rules on every title in the database plus made-up edge cases. One bug found and fixed on the way: a date was being cut from the financial statement titles. Checked both themes. SEC requests per build stay at 9. Also removed the price route question from the open list, since it was decided earlier. Merged pull request 12. Next: 3.11, news sub-tabs.

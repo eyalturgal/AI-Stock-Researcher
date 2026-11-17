@@ -8,6 +8,7 @@ import {
 } from "@/lib/sec";
 import type { Filing } from "@/lib/filings";
 import { formatDate } from "@/lib/format";
+import { friendlyTitle, UNTITLED_ATTACHMENT } from "@/lib/documents";
 
 // Filings with the SEC, newest first.
 //
@@ -28,6 +29,15 @@ const LAYOUTS: Record<Layout, string> = {
 
 const linkStyle = "text-ink-soft underline underline-offset-2 hover:text-ink";
 
+// Company names and tickers written in capitals, like AMD or TSMC, taken
+// from the stock config. They stay in capitals when a title written all in
+// capitals is made easier to read.
+const COMPANY_CAPITALS = [stockConfig, ...stockConfig.peers]
+  .flatMap((company) => [company.ticker, company.name])
+  .filter((word) => word === word.toUpperCase());
+
+const tidy = (text: string) => friendlyTitle(text, COMPANY_CAPITALS);
+
 // What visitors see when the SEC could not be reached.
 function Unavailable({ what }: { what: string }) {
   return (
@@ -38,7 +48,12 @@ function Unavailable({ what }: { what: string }) {
   );
 }
 
-// One filing: a line of labels, the title, then any attachments.
+// One filing: a line of labels, the headline, then any other attachments.
+//
+// The headline is the company's own title when there is one: the first
+// attached document (usually the press release), or for foreign company
+// reports the subject read from the report. Our plain-language label then
+// moves to a small line under it, still linking to the official filing.
 function FilingItem({
   filing,
   details,
@@ -48,11 +63,27 @@ function FilingItem({
   details: FilingDetails | null;
   labels: string[];
 }) {
-  // Foreign company reports get their title from the document itself.
-  const title = (filing.titleFromDocument && details?.subject) || filing.title;
-  // When that title came from the only attachment, listing it again would
-  // just repeat it.
-  const attachments = (details?.attachments ?? []).filter((item) => item.title !== title);
+  const all = details?.attachments ?? [];
+  // The first attachment can only be the headline if its title could be read.
+  const lead = all.length > 0 && all[0].title !== UNTITLED_ATTACHMENT ? all[0] : null;
+  let headline = filing.title;
+  let headlineUrl = filing.url;
+  let showFilingLabel = false;
+
+  if (filing.titleFromDocument && details?.subject) {
+    headline = details.subject;
+    if (lead && lead.title === details.subject) headlineUrl = lead.url;
+  } else if (lead) {
+    headline = lead.title;
+    headlineUrl = lead.url;
+    showFilingLabel = true;
+  }
+
+  const title = tidy(headline);
+  // Do not list the headline's own document again.
+  const attachments = all
+    .map((item) => ({ ...item, title: tidy(item.title) }))
+    .filter((item) => item.url !== headlineUrl && item.title !== title);
 
   return (
     <li className="border-t border-line pt-4">
@@ -68,7 +99,7 @@ function FilingItem({
       </div>
       <h3 className="mt-2 text-lg font-medium leading-7 text-ink">
         <a
-          href={filing.url}
+          href={headlineUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="underline-offset-4 hover:underline"
@@ -76,6 +107,14 @@ function FilingItem({
           {title}
         </a>
       </h3>
+      {showFilingLabel ? (
+        <p className="mt-1 text-sm leading-6">
+          <span className="text-ink-faint">SEC filing: </span>
+          <a href={filing.url} target="_blank" rel="noopener noreferrer" className={linkStyle}>
+            {filing.title}
+          </a>
+        </p>
+      ) : null}
       {attachments.length > 0 ? (
         <ul className="mt-2 flex flex-col gap-1 text-sm leading-6">
           {attachments.map((attachment) => (
@@ -129,8 +168,8 @@ export async function FilingList({
       </ul>
       <p className="mt-6 text-xs leading-5 text-ink-faint">
         Source: the SEC, the US regulator companies must report to. Headlines
-        are our plain-language labels, and attachment titles are the
-        company&apos;s own. Each one opens the original document.{" "}
+        are the company&apos;s own titles when a filing has one, otherwise our
+        plain-language label. Each link opens the original document.{" "}
         <a href={secCompanyUrl()} target="_blank" rel="noopener noreferrer" className={linkStyle}>
           All filings
         </a>
