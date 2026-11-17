@@ -30,7 +30,7 @@ Never print a secret's value, in commands or in the report. The scripts here pri
 
 1. **Pages.** The `check-pages.js` report: every page in both themes, the widgets appear, the news pages have their items (Filings 40, Industry 30, Announcements everything saved), nothing scrolls sideways on a phone. Look at screenshots of anything new, in both themes.
 2. **Fallbacks.** Every outside source must have one. Stop the database (`pg_ctlcluster 16 main stop`) and build: it must log "DATABASE UPDATE FAILED" and still build every page from the live sources. Start the database again afterwards. A build without `NODE_USE_ENV_PROXY=1` cannot reach the SEC: the pages must show the "could not be loaded" messages, not crash.
-3. **SEC pacing.** `node .claude/skills/security-and-error-check/scripts/sec-rate.js build.log` on a build that read many documents (after the stop-the-database build is a good one). At most 8 in any second. With the database full, a build makes about 9 requests in all.
+3. **SEC pacing.** `node .claude/skills/security-and-error-check/scripts/sec-rate.mjs build.log` on a build that read many documents (after the stop-the-database build is a good one). At most 8 in any second. With the database full, a build makes about 9 requests in all.
 4. **Anything added since the last check.** Re-test it as a visitor would, and read its part of ROADMAP.md for what it should do.
 
 ## 4. Record
