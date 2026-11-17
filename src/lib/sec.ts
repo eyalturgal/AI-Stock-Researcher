@@ -29,6 +29,7 @@ import {
   parseAttachmentTable,
   subjectFromForeignReport,
   titleFromAttachment,
+  UNTITLED_ATTACHMENT,
   type FilingDetails,
 } from "@/lib/documents";
 import { loadFilingDetails, saveFilingDetails } from "@/db/store";
@@ -244,14 +245,17 @@ export async function getFilingDetails(filing: {
       refs.map(async (ref) => {
         const url = `${folder}/${ref.document}`;
         const head = await secFetchText(url, 32_000);
-        return { title: titleFromAttachment(head) ?? "Attached document", url };
+        return { title: titleFromAttachment(head) ?? UNTITLED_ATTACHMENT, url };
       }),
     );
 
     let subject: string | null = null;
     if (filing.titleFromDocument) {
       const head = await secFetchText(`${folder}/${filing.primaryDocument}`, 48_000);
-      subject = subjectFromForeignReport(head) ?? attachments[0]?.title ?? null;
+      const firstTitle = attachments[0]?.title;
+      subject =
+        subjectFromForeignReport(head) ??
+        (firstTitle && firstTitle !== UNTITLED_ATTACHMENT ? firstTitle : null);
     }
 
     const details = { subject, attachments };
