@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 3 (News). Live now: official filings from the SEC, plus company and market news from TradingView's news feed. Still to do: company announcements, industry news, and news as data the AI can use
-- **Next action:** Eyal: look at the News tab on the live site. Claude: start 3.2, researching sources for company announcements and for news our own code can hold
-- **Blocked on:** nothing
+- **Current phase:** Phase 3 (News). Source research (3.2) is done. Next is 3.4, company announcements, plus industry news from peer companies' filings
+- **Next action:** Eyal: say go on 3.4, and confirm or change the list of peer companies Claude suggested in chat
+- **Blocked on:** that answer
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -108,18 +108,38 @@ Every item also gets a **topic** (earnings, product, leadership, legal, deals, a
 
 **Sub-steps:**
 - [x] 3.1 Agree the categories, topics and certainty labels above (agreed by Eyal, 2026-11-17)
-- [ ] 3.2 Source research, like Phase 2: where it comes from, whether we may show it, and whether we may store and summarize it. Still needed for category B and for 3.6. Category A and the TradingView feeds were already cleared in the Phase 2 research
+- [x] 3.2 Source research, like Phase 2: where it comes from, whether we may show it, and whether we may store and summarize it (done 2026-11-17, results below)
 - [x] 3.3 Category A: the company's SEC filings as a feed, with plain-language labels for each filing type (on the News tab, and the latest three on the Overview)
-- [ ] 3.4 Category B: company announcements, from the source chosen in 3.2
-- [ ] 3.5 Categories C, D and E for reading: TradingView's news widget, the same kind of embed as the chart. Company news (C) and market news (E) are live. Industry news (D) is missing: TradingView's feed covers one stock or the whole market, not an industry
-- [ ] 3.6 Categories C, D and E as data our own code can hold, from the source chosen in 3.2. Needed for the AI briefs
-- [ ] 3.7 Decide where news items are stored, since the AI needs to look back over days of items
-- [ ] 3.8 News tab laid out by category, with keyword filtering from the stock config and every source credited. Layout and credits are done. Keyword filtering waits for 3.6, since we cannot filter inside TradingView's widget
+- [ ] 3.4 Category B: company announcements, from two places found in 3.2: the company's newsroom feed (its address goes in the stock config), and the press releases already attached to SEC filings, linked under each filing
+- [ ] 3.5 Categories C, D and E for reading: TradingView's news widget, the same kind of embed as the chart. Company news (C) and market news (E) are live. Industry news (D) is missing: TradingView's feed covers one stock or the whole market, not an industry. Plan from 3.2: the industry is a list of peer companies in the stock config (competitors, suppliers, customers), shown through their SEC filings with the same code as 3.3
+- [x] 3.6 Media coverage as data the AI can use: decided in 3.2. No source checked lets our code store and summarize media articles for a public site, so in Phase 5 the AI finds and reads coverage itself (Claude's web search and web fetch tools) while writing a brief. We store only the brief, short quotes and links
+- [x] 3.7 Where news is stored: decided in 3.2. A Postgres database on Neon's free plan, filled by a scheduled job on GitHub Actions. Set up at the start of Phase 5, when something first needs storing
+- [ ] 3.8 News tab laid out by category, with every source credited. Layout and credits are done, the rest follows 3.4 and 3.5. Keyword filtering is dropped: our code holds no media items until Phase 5, and then the AI judges what is relevant
 
 **Done when:** the news tab is useful enough that I'd actually check it.
 
+**3.2 research (2026-11-17): what each news source allows.** Read from each provider's own pages unless marked otherwise.
+
+| Source | What it has | Show on our public site? | Store it and let the AI summarize it? | In their words |
+|---|---|---|---|---|
+| SEC filings and their attachments | Filings, plus the company's own press releases and CFO commentary attached to them | Yes | Yes | "free to access and reuse" (Phase 2 research). Checked: the Nov 12 filing carries the CEO-change press release, the Aug 26 filing carries the earnings release and the CFO commentary |
+| The company's newsroom feed | Press releases and company blog posts with short summaries. Tested: 20 recent items | Yes, non-commercial, credited and linked | Not addressed. Low risk: it is the company's own announcement | "a free service for any individual for information purposes only. Use is restricted to non-commercial purposes only." NVIDIA may "request the immediate cessation of any specific use" |
+| TradingView news widget | Media headlines for the company and the market | Yes, live since pull request 7 | No. It is drawn for people to read, and our code cannot see inside it | Phase 2 research |
+| Google News feed | Headlines from many outlets | No | No | "made available solely for the purpose of rendering Google News results within a personal feed reader for personal, non-commercial use. Any other use of the feed is expressly prohibited." |
+| The Guardian API | Full article text from one newspaper | Free key is for non-commercial use, and "publishing content on third party sites" is listed under the paid key | No on the free key: the paid key covers "training models for generative artificial intelligence services, text and data mining solutions" | From their access page. Their full terms on theguardian.com were not read: adding that site to Claude's workspace did not go through |
+| Marketaux | Finance news snippets tagged by ticker: 3 per request, 100 requests a day | No | No | "solely for your personal, non-commercial use" (terms last updated January 10, 2021) |
+| NewsAPI.org | Headlines from many outlets | No | No | Free plan is for "development and testing in a development environment only" (their pricing page, quoted via search) |
+| GDELT | Searchable headlines and links from news sites worldwide | Reportedly yes, with a credit and link | Reportedly yes | Not read at the source. Others quote "unlimited and unrestricted use for any academic, commercial, or governmental use of any kind without fee". Its API refused or dropped every test call from Claude's workspace ("Please limit requests to one every 5 seconds") |
+
+**Storage and scheduling (also 3.2):**
+- **Neon Postgres, free plan:** "no time limits and no credit card required", 100 compute-hours a month and 1 GB of storage per project. Connects to Vercel through the Vercel Marketplace.
+- **GitHub Actions:** free for this repo because it is public (GitHub lists "Standard GitHub-hosted runners in public repositories" as free). Scheduled runs go every 5 minutes at most, can start late when GitHub is busy, and switch off after 60 days without repository activity (these last points from guides, not GitHub's own pages).
+- **Files in the repo instead of a database:** possible. Vercel can be told not to deploy a data branch (`git.deploymentEnabled`: "Specify branches that should not trigger a deployment upon commits"). Without that, each data update would use one of the free plan's 100 deployments a day (Vercel's docs, via search).
+- **AI costs, for Phase 5:** Claude's web search costs $10 per 1,000 searches plus tokens, and web fetch costs tokens only (Anthropic's pricing docs, via search). The default model, Claude Opus 5.5, costs $4 per million input tokens and $20 per million output tokens.
+
 ### Phase 4: Production hardening and v1 launch
 - [ ] Security pass: secrets in environment variables, rate limiting, input validation, HTTPS, dependency scanning
+- [ ] Trim Claude's workspace allow-list: remove sites that were only needed for research or were ruled out (Alpha Vantage, Finnhub, Twelve Data, FMP, Marketaux, NYT, the Guardian, Google News)
 - [ ] Basic monitoring/error alerts
 - [ ] Privacy-friendly analytics (optional)
 - [ ] Buy and connect the project's domain (name still undecided)
@@ -128,8 +148,9 @@ Every item also gets a **topic** (earnings, product, leadership, legal, deals, a
 **Done when:** v1 is publicly launched and I'd be comfortable sending the link to anyone.
 
 ### Phase 5: Automation and AI research layer
-- [ ] Scheduled jobs that refresh data and news on their own
-- [ ] AI news briefs (Eyal's idea, 2026-11-17): group stories about the same event, then write one brief per event. Each brief says what happened, what is confirmed, what is only reported, where sources disagree, what is still unknown, and links every source. Shown as small cards that open into the full brief. Built as a fixed workflow that runs on a schedule, not a free-roaming agent. Eyal's additions: use short direct quotes, credited and linked, so nobody's words get reworded wrong. Sensitive topics (leadership, legal, scandals, rumors) get stricter rules: only what a named source says, labeled as reported until an official source confirms it. The AI may also search the web for stories the regular sources miss
+- [ ] Database: Postgres on Neon's free plan (decided in 3.2). Eyal creates the account and connects it to Vercel
+- [ ] Scheduled jobs that refresh data and news on their own: a collector on GitHub Actions, about every 30 minutes, storing filings, attached press releases and newsroom items so the AI can look back over days
+- [ ] AI news briefs (Eyal's idea, 2026-11-17): group stories about the same event, then write one brief per event. Each brief says what happened, what is confirmed, what is only reported, where sources disagree, what is still unknown, and links every source. Shown as small cards that open into the full brief. Built as a fixed workflow that runs on a schedule, not a free-roaming agent. Eyal's additions: use short direct quotes, credited and linked, so nobody's words get reworded wrong. Sensitive topics (leadership, legal, scandals, rumors) get stricter rules: only what a named source says, labeled as reported until an official source confirms it. The AI may also search the web for stories the regular sources miss. Decided in 3.2: media coverage is found with Claude's web search and read with web fetch, since no news source allows our code to store it
 - [ ] AI daily digest: what happened and why it matters
 - [ ] AI bull case and bear case rundowns
 - [ ] AI earnings summaries
@@ -168,7 +189,7 @@ Every item also gets a **topic** (earnings, product, leadership, legal, deals, a
 **Done when:** a new stock page can be created mostly by running saved workflows.
 
 ### Phase 9: Stage 2, Magnificent Seven
-- [ ] Add a database (price history, cached data, research archive)
+- [ ] Extend the database from Phase 5 for price history and comparisons across companies
 - [ ] Pages for all seven companies
 - [ ] Comparison views across companies
 
@@ -194,6 +215,7 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 - [ ] How to package workflows as Claude Code skills, commands or subagents
 - [ ] What AI-written news briefs may contain. Working rule until researched: facts in our own words plus short direct quotes, each credited and linked. Never whole articles or paywalled text. Official filings can be quoted freely. This area of law is unsettled, so check it properly before Phase 5
 - [ ] Project name and domain
+- [ ] GDELT as a free radar for media stories: test it from GitHub Actions in Phase 5, since it refused every call from Claude's workspace
 - [ ] Company logos (Eyal wants them, like other finance sites have): research how those sites get them. Likely a logo service with terms that allow display, or the company's own brand guidelines. For now the site shows a plain tile with the ticker
 - [ ] Check the exact credit wording TradingView asks for (the NOTICE file in their GitHub repo) before the v1 launch
 
@@ -224,6 +246,11 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-17 | TradingView widgets use the older script-embed format, not the newer "web component" format | The newer format was tried first and did not load on the live site: its exact code is only given out after signing in, so part of it was guessed. The older format is written out in full in TradingView's tutorial. The cost: a widget has to be rebuilt when the visitor switches theme |
 | 2026-11-17 | The sample chart and the Lightweight Charts library were removed | The price chart now comes from TradingView's widget. The library can come back for our own charts of SEC figures over time (Phase 7) |
 | 2026-11-17 | Quarter 4 figures are worked out as full year minus the first three quarters | Companies do not report the fourth quarter on its own. Checked against the real data: the four quarters add up exactly to the reported full year |
+| 2026-11-17 | Company announcements come from the press releases attached to SEC filings and from the company's own newsroom feed, its address kept in the stock config | Both are the company's own words. The SEC copies are free to reuse, and the newsroom feed allows non-commercial use |
+| 2026-11-17 | No news API for media coverage. In Phase 5 the AI finds and reads coverage itself with Claude's web search and web fetch tools | Every feed and API checked bans public display, bans AI use, or did not work. Eyal wanted AI searching anyway. Only the brief, short quotes and links are stored |
+| 2026-11-17 | Industry news means a list of peer companies in the stock config, shown through their SEC filings | Free and works for any company. Eyal noted an industry can be defined in different ways, and a list he edits handles that |
+| 2026-11-17 | Storage: Postgres on Neon's free plan, filled by scheduled jobs on GitHub Actions. The database moves up from Phase 9 to Phase 5 | Free, no server to run, and Eyal knows SQL from CS50. It will also hold the AI briefs and later the chatbot's search. Alternative was data files in the repo: simpler, but harder to search and outgrown by Phase 6 |
+| 2026-11-17 | Keyword filtering of news dropped from Phase 3 | Our code holds no media items until Phase 5, and then the AI judges relevance |
 | 2026-11-17 | News categories A to E, with topics and certainty labels, agreed | Eyal's breakdown of news, sorted by who is speaking |
 | 2026-11-17 | News tab first version: official filings from the SEC, company and market news from TradingView's news widget | Both sources were already cleared in the Phase 2 research, so they went live before the rest of the research. Eyal: get something out there, then fix |
 | 2026-11-17 | AI news briefs may use short direct quotes, credited and linked | Eyal's idea. Quoting keeps the AI from rewording a source wrong, which matters most for rumors and scandals. Whole articles and paywalled text are never copied |
@@ -253,3 +280,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17 (seventh session):** Eyal confirmed the TradingView price and chart work on the live site and restated the direction: lean on leaders for what they do well, and make AI help and gathered data the site's own angle. No code changed. Leftovers from Phase 2: check whether the price panel shows market cap and P/E, and tidy the company name appearing twice at the top. Next: Phase 3 (News), on Eyal's go.
 - **2026-11-17 (eighth session):** Closed the Phase 2 leftovers. Eyal approved five more TradingView sites for Claude's workspace, so the widgets can now be seen there with live numbers. Confirmed the price panel shows market cap, P/E, dividend yield and the next earnings date. Removed our own repeated ticker and company name from the top (the title stays for screen readers and search engines), and swapped our EPS figure there for revenue growth, since the panel already shows EPS. Found and fixed a bug: in dark mode the price panel had a white background. Merged pull request 6. Then broke Phase 3 into categories and sub-steps from Eyal's description of news, and added his AI news brief idea to Phase 5. Next: Eyal confirms the categories.
 - **2026-11-17 (ninth session):** Eyal approved the categories and sub-steps, and added rules for the AI briefs: short direct quotes, stricter care on sensitive topics, and AI web search. Built the first version of the News tab: the company's last 12 SEC filings with plain-language titles and links to the original documents, plus TradingView's company news and market news feeds. The Overview now shows the latest three filings. Removed all placeholder news, so no sample data is left anywhere. Tested both themes on desktop and phone. A full-page screenshot showed the news feeds blank in dark mode, but scrolling to them showed they work: a screenshot quirk, now noted in CLAUDE.md. Merged pull request 7. Next: 3.2, source research for company announcements and for news our own code can hold.
+- **2026-11-17 (tenth session):** Did 3.2, the news source research, reading each provider's terms at the source where possible and testing real calls. Eyal approved 14 more sites for Claude's workspace; a later request for 2 more (theguardian.com, gdeltproject.org) did not go through, so those two terms pages are marked as not read. Findings: official sources are open (SEC filings carry the company's own press releases, and the company's newsroom feed allows non-commercial use), but no media news source allows our code to store and summarize articles for a public site. Answered Eyal's questions on databases, hosting, agents and workflows: Neon Postgres, GitHub Actions and Vercel cover it for free, with Claude's web search for media coverage in Phase 5. Cross-check on a live case: the Nov 12 filing and its attached press release confirm the CEO change but give no reason. No code changed. Next: 3.4 on Eyal's go.
