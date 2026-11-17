@@ -7,10 +7,10 @@ export function SiteFooter() {
         <p>
           This site is a research and learning tool. Nothing on it is financial
           advice. Prices can be delayed, and reported figures can lag the
-          newest filing by up to an hour. News items are placeholders for now.
+          newest filing by up to an hour.
         </p>
         <p className="mt-1">
-          Prices and charts are provided by{" "}
+          Prices, charts and news coverage are provided by{" "}
           <a
             href="https://www.tradingview.com/"
             target="_blank"
@@ -19,7 +19,7 @@ export function SiteFooter() {
           >
             TradingView
           </a>
-          . Company financials come from filings published by the{" "}
+          . Company financials and filings come from the{" "}
           <a
             href="https://www.sec.gov/"
             target="_blank"

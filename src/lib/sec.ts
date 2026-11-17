@@ -18,6 +18,7 @@ import {
   type CompanyFacts,
   type Fundamentals,
 } from "@/lib/financials";
+import { buildFilings, type Filing, type SecSubmissions } from "@/lib/filings";
 
 // Ask the SEC for a web address and return the data it sends back.
 async function secFetch<T>(url: string): Promise<T> {
@@ -57,6 +58,27 @@ export async function getFundamentals(): Promise<Fundamentals | null> {
   } catch (error) {
     console.error("Could not load financials from the SEC:", error);
     // Remember a failure only briefly, so the site recovers within minutes.
+    cacheLife("minutes");
+    return null;
+  }
+}
+
+// The tracked company's most recent filings, newest first. Returns null if
+// they could not be loaded.
+export async function getFilings(): Promise<Filing[] | null> {
+  "use cache";
+
+  try {
+    const submissions = await secFetch<SecSubmissions>(
+      `https://data.sec.gov/submissions/CIK${stockConfig.cik}.json`,
+    );
+    const filings = buildFilings(submissions, stockConfig.cik, 20);
+    // A new filing can appear at any time, so check every 15 minutes.
+    // stale, revalidate and expire are in seconds.
+    cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
+    return filings;
+  } catch (error) {
+    console.error("Could not load filings from the SEC:", error);
     cacheLife("minutes");
     return null;
   }

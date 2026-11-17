@@ -35,8 +35,8 @@ Without it the site still runs, and shows a message where the figures would be.
 
 ## Where the data comes from
 
-- Prices and charts: [TradingView](https://www.tradingview.com/) widgets
-- Company financials: filings published by the [U.S. Securities and Exchange Commission](https://www.sec.gov/)
+- Prices, charts and news coverage: [TradingView](https://www.tradingview.com/) widgets
+- Company financials and filings: the [U.S. Securities and Exchange Commission](https://www.sec.gov/)
 
 ## Built with
 

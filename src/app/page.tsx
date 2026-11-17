@@ -1,10 +1,9 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { stockConfig } from "@/config/stock";
-import { sampleNews } from "@/data/sample";
 import { GlassCard, SectionHeader } from "@/components/ui/GlassCard";
 import { KeyStats, KeyStatsLoading } from "@/components/Fundamentals";
-import { NewsList } from "@/components/NewsList";
+import { FilingList, FilingListLoading } from "@/components/Filings";
 import { TradingViewWidget } from "@/components/TradingViewWidget";
 
 const linkStyle = "text-sm text-ink-soft underline-offset-4 hover:text-ink hover:underline";
@@ -65,17 +64,16 @@ export default function OverviewPage() {
 
       <section>
         <SectionHeader
-          title="Latest news"
+          title="Latest filings"
           action={
             <Link href="/news" className={linkStyle}>
               All news
             </Link>
           }
         />
-        <p className="-mt-2 mb-5 text-sm text-ink-faint">
-          Placeholders for now. Real news arrives in the next phase.
-        </p>
-        <NewsList items={sampleNews.slice(0, 3)} layout="columns" />
+        <Suspense fallback={<FilingListLoading count={3} />}>
+          <FilingList limit={3} layout="columns" />
+        </Suspense>
       </section>
     </div>
   );
