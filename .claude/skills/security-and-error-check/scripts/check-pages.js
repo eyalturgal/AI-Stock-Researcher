@@ -12,6 +12,9 @@
 // or a page scrolls sideways on a phone. Console errors and failed requests
 // are listed for a person to judge: some come from the workspace's network.
 
+/* eslint-disable @typescript-eslint/no-require-imports --
+   Playwright is installed for the whole of Claude's workspace, outside this
+   project, and only require() can load it from there. */
 const fs = require("fs");
 const { chromium } = require("playwright");
 

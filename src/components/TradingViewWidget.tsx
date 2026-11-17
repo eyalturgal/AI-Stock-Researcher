@@ -19,6 +19,10 @@ import { stockConfig } from "@/config/stock";
 //
 // The settings below are the ones from TradingView's tutorial, with our
 // stock and our theme filled in.
+//
+// Under each widget goes the credit line from TradingView's own embed code,
+// word for word. Their FAQ says that removing or changing it ("text and link
+// under the widget") needs their agreement.
 
 type WidgetName = "advanced-chart" | "symbol-info" | "stock-news" | "market-news";
 type Theme = "light" | "dark";
@@ -73,6 +77,25 @@ function widgetSettings(widget: WidgetName, theme: Theme) {
     locale: "en",
     colorTheme: theme,
     isTransparent: true, // let the page's own background show through
+  };
+}
+
+// The credit line for each widget, as TradingView's widget pages show it
+// (read on 2026-11-17). Only the stock is ours. Both news feeds get the
+// same line: TradingView's page shows it for every feed setting.
+function credit(widget: WidgetName): { text: string; url: string } {
+  const [exchange, ticker] = stockConfig.tradingViewSymbol.split(":");
+  const symbolPage = `https://www.tradingview.com/symbols/${exchange}-${ticker}/`;
+  const tracking = "?utm_source=www.tradingview.com&utm_medium=widget_new&utm_campaign=";
+  if (widget === "advanced-chart") {
+    return { text: `${ticker} stock chart`, url: `${symbolPage}${tracking}advanced-chart` };
+  }
+  if (widget === "symbol-info") {
+    return { text: `${ticker} performance`, url: `${symbolPage}${tracking}symbol-info` };
+  }
+  return {
+    text: "Top stories",
+    url: `https://www.tradingview.com/news/top-providers/tradingview/${tracking}timeline`,
   };
 }
 
@@ -148,8 +171,12 @@ export function TradingViewWidget({
   // cannot load.
   const symbolPage = `https://www.tradingview.com/symbols/${stockConfig.tradingViewSymbol.replace(":", "-")}/`;
 
+  const { text, url } = credit(widget);
+
+  // The widget fills the box, apart from one line at the bottom for the
+  // credit, the same way TradingView's own embed code lays it out.
   return (
-    <div className={className}>
+    <div className={`flex flex-col ${className}`}>
       {loaded ? null : (
         <p className="py-2 text-sm leading-6 text-ink-faint">
           {loadingText} If nothing appears, your browser may be blocking it.
@@ -165,11 +192,18 @@ export function TradingViewWidget({
           .
         </p>
       )}
-      <div
-        ref={containerRef}
-        className="tradingview-widget-container"
-        style={{ width: "100%", height: "100%" }}
-      />
+      <div ref={containerRef} className="tradingview-widget-container min-h-0 w-full flex-1" />
+      <div className="tradingview-widget-copyright pt-2 text-xs leading-5 text-ink-faint">
+        <a
+          href={url}
+          rel="noopener nofollow"
+          target="_blank"
+          className="text-ink-soft underline underline-offset-2 hover:text-ink"
+        >
+          <span className="blue-text">{text}</span>
+        </a>
+        <span className="trademark"> by TradingView</span>
+      </div>
     </div>
   );
 }

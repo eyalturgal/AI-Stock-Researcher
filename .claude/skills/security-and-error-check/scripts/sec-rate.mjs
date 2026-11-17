@@ -1,10 +1,11 @@
 // Reads a build log made with SEC_LOG_REQUESTS=1 and reports how fast the
 // site asked the SEC for data. The SEC allows at most 10 requests a second,
 // and the site's queue allows 8. Exits with 1 above 8.
-// Usage: node .claude/skills/security-and-error-check/scripts/sec-rate.js build.log
+// Usage: node .claude/skills/security-and-error-check/scripts/sec-rate.mjs build.log
 
-const fs = require("fs");
-const times = fs.readFileSync(process.argv[2], "utf8").split("\n")
+import { readFileSync } from "node:fs";
+
+const times = readFileSync(process.argv[2], "utf8").split("\n")
   .map((line) => line.match(/SEC request: (\S+Z) /)?.[1])
   .filter(Boolean)
   .map((t) => Date.parse(t))
