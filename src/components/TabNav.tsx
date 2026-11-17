@@ -12,17 +12,25 @@ export function TabNav() {
   return (
     <nav aria-label="Sections" className="h-full">
       <ul className="flex h-full gap-6">
-        {siteConfig.tabs.map((tab) => (
-          <li key={tab.href} className="h-full">
-            <Link
-              href={tab.href}
-              aria-current={pathname === tab.href ? "page" : undefined}
-              className="tab-link"
-            >
-              {tab.label}
-            </Link>
-          </li>
-        ))}
+        {siteConfig.tabs.map((tab) => {
+          // A tab also stays marked on its sub-pages, like News on
+          // /news/filings. There it is marked as the current section
+          // ("true") rather than the current page. Overview ("/") only
+          // matches itself.
+          const current =
+            pathname === tab.href
+              ? "page"
+              : pathname.startsWith(`${tab.href}/`)
+                ? "true"
+                : undefined;
+          return (
+            <li key={tab.href} className="h-full">
+              <Link href={tab.href} aria-current={current} className="tab-link">
+                {tab.label}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

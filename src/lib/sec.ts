@@ -38,25 +38,32 @@ export type { FilingDetails };
 
 // ---------- Talking to the SEC ----------
 
-// The SEC asks automated tools to stay under 10 requests a second. Every
-// request waits for its own time slot here, one every 125 milliseconds,
-// which keeps us at about 8 a second however many run at once.
+// The SEC asks automated tools to stay under 10 requests a second. Requests
+// here wait in a queue: each one leaves 125 milliseconds after the one
+// before it, so at most 8 go out in any second, however many are waiting.
+// (An earlier version gave each request a time slot in advance. When the
+// program was busy, a late request and the next one could leave almost
+// together.)
+//
+// The queue lives inside one running program. Next.js builds a site of
+// fewer than 25 pages in a single worker, so builds share one queue. With
+// more stocks (Phase 9) that needs another look.
 const GAP_MS = 125;
-let nextSlot = 0;
+let queue: Promise<void> = Promise.resolve();
 
-// Set SEC_LOG_REQUESTS=1 to print every request the site makes to the SEC.
-// Useful for checking how many requests a page costs.
+// Set SEC_LOG_REQUESTS=1 to print every request the site makes to the SEC,
+// with the time it was sent. Useful for checking how many requests a page
+// costs, and that they stay under the limit.
 function logRequest(url: string): void {
-  if (process.env.SEC_LOG_REQUESTS) console.info("SEC request:", url);
+  if (process.env.SEC_LOG_REQUESTS) {
+    console.info(`SEC request: ${new Date().toISOString()} ${url}`);
+  }
 }
 
-async function waitTurn(): Promise<void> {
-  const now = Date.now();
-  const slot = Math.max(now, nextSlot);
-  nextSlot = slot + GAP_MS;
-  if (slot > now) {
-    await new Promise((resolve) => setTimeout(resolve, slot - now));
-  }
+function waitTurn(): Promise<void> {
+  const turn = queue.then(() => new Promise<void>((resolve) => setTimeout(resolve, GAP_MS)));
+  queue = turn;
+  return turn;
 }
 
 // The SEC requires automated tools to say who they are. See README.md for
@@ -122,6 +129,11 @@ async function secFetchText(url: string, maxBytes: number): Promise<string> {
 
 // ---------- The tracked company ----------
 
+// The most filings the site shows for the tracked company, on the Filings
+// page. Other pages show the newest few of the same list, so one request to
+// the SEC covers every page.
+const FILINGS_LIMIT = 40;
+
 // The reported financials for the tracked stock, already worked out into the
 // figures the site shows. Returns null if they could not be loaded.
 export async function getFundamentals(): Promise<Fundamentals | null> {
@@ -154,7 +166,7 @@ export async function getFilings(): Promise<Filing[] | null> {
     const submissions = await secFetch<SecSubmissions>(
       `https://data.sec.gov/submissions/CIK${stockConfig.cik}.json`,
     );
-    const filings = buildFilings(submissions, stockConfig.cik, 20);
+    const filings = buildFilings(submissions, stockConfig.cik, FILINGS_LIMIT);
     // A new filing can appear at any time, so check every 15 minutes.
     // stale, revalidate and expire are in seconds.
     cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
@@ -180,12 +192,14 @@ export type IndustryFiling = Filing & {
   relationship: string;
 };
 
+// The most filings the site shows from other companies, on the Industry
+// page. Other pages show the newest few of the same list.
+const INDUSTRY_LIMIT = 30;
+
 // Recent newsworthy filings from the peer companies listed in the stock
 // config, newest first. Companies that could not be loaded are skipped.
 // Returns null only if none could be loaded.
-export async function getIndustryFilings(
-  limit: number,
-): Promise<IndustryFiling[] | null> {
+export async function getIndustryFilings(): Promise<IndustryFiling[] | null> {
   "use cache";
 
   const perCompany = await Promise.all(
@@ -194,7 +208,7 @@ export async function getIndustryFilings(
         const submissions = await secFetch<SecSubmissions>(
           `https://data.sec.gov/submissions/CIK${peer.cik}.json`,
         );
-        return buildFilings(submissions, peer.cik, limit, { newsOnly: true }).map(
+        return buildFilings(submissions, peer.cik, INDUSTRY_LIMIT, { newsOnly: true }).map(
           (filing) => ({ ...filing, company: peer.name, relationship: peer.relationship }),
         );
       } catch (error) {
@@ -214,7 +228,7 @@ export async function getIndustryFilings(
     .flat()
     // Newest first. Filings from the same day keep their order.
     .sort((a, b) => b.filedOn.localeCompare(a.filedOn))
-    .slice(0, limit);
+    .slice(0, INDUSTRY_LIMIT);
 }
 
 // ---------- What is inside a filing ----------

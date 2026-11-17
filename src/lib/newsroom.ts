@@ -9,12 +9,17 @@ import { loadAnnouncements, saveAnnouncements } from "@/db/store";
 
 export type { Announcement };
 
+// The most announcements the site shows, on the Announcements page. Other
+// pages show the newest few of the same list, so the feed is read once per
+// refresh however many pages show it.
+const ANNOUNCEMENTS_LIMIT = 50;
+
 // The latest announcements from the company's newsroom feed. New items are
 // added to the database each time, so the site keeps a history that goes
 // back further than the feed's own last 20 items. Returns null if neither
 // the feed nor the database could be read, and an empty list if the stock
 // config has no feed for this company.
-export async function getAnnouncements(limit: number): Promise<Announcement[] | null> {
+export async function getAnnouncements(): Promise<Announcement[] | null> {
   "use cache";
 
   const { feedUrl } = stockConfig.newsroom;
@@ -33,14 +38,14 @@ export async function getAnnouncements(limit: number): Promise<Announcement[] | 
     }
     const fresh = parseNewsroomFeed(await response.text(), 100);
     await saveAnnouncements(stockConfig.cik, fresh);
-    const stored = await loadAnnouncements(stockConfig.cik, limit);
+    const stored = await loadAnnouncements(stockConfig.cik, ANNOUNCEMENTS_LIMIT);
     // Companies post a few times a day at most. Check every 15 minutes.
     cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
-    return stored && stored.length > 0 ? stored : fresh.slice(0, limit);
+    return stored && stored.length > 0 ? stored : fresh.slice(0, ANNOUNCEMENTS_LIMIT);
   } catch (error) {
     console.error("Could not load the newsroom feed:", error);
     // The feed is down: show what was stored earlier, if anything.
-    const stored = await loadAnnouncements(stockConfig.cik, limit);
+    const stored = await loadAnnouncements(stockConfig.cik, ANNOUNCEMENTS_LIMIT);
     cacheLife("minutes");
     return stored && stored.length > 0 ? stored : null;
   }

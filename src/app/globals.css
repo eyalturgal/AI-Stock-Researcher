@@ -280,6 +280,40 @@ body {
     color: var(--color-ink);
   }
 
+  &[aria-current] {
+    color: var(--color-ink);
+  }
+
+  &[aria-current]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 9999px;
+    background: var(--color-ink);
+  }
+}
+
+/* A sub-tab, such as Filings under News: the same idea as a tab in the top
+   bar, a little smaller. The line under the open one sits on the row's
+   own line. */
+@utility subtab-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--color-ink-faint);
+  transition: color 150ms ease;
+
+  &:hover {
+    color: var(--color-ink);
+  }
+
   &[aria-current="page"] {
     color: var(--color-ink);
   }
