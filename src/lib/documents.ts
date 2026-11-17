@@ -63,6 +63,15 @@ function withoutExhibitLabel(line: string): string {
   return line.replace(/^exhibit\s+\d+(\.\d+)?\s*[:.-]?\s*/i, "");
 }
 
+// ---------- What the site keeps about a filing ----------
+
+export type FilingDetails = {
+  // For foreign company reports: the subject, read from the document.
+  subject: string | null;
+  // Attached press releases and similar documents, with their own titles.
+  attachments: { title: string; url: string }[];
+};
+
 // ---------- The attachments in a filing ----------
 
 export type AttachmentRef = {
