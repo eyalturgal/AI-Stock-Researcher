@@ -187,12 +187,6 @@ body {
   }
 }
 
-/* TradingView's widgets read these settings. This one makes them use the
-   site's font. They pick up light or dark on their own from color-scheme. */
-:root {
-  --tv-widget-font-family: var(--font-sans);
-}
-
 /* A clear outline for keyboard users, on anything that can be focused. */
 :focus-visible {
   outline: 2px solid var(--color-accent);

@@ -30,8 +30,8 @@ export function StockHeader() {
           </h1>
 
           <TradingViewWidget
-            widget="single-ticker"
-            className="mt-5 max-w-md"
+            widget="symbol-info"
+            className="mt-5"
             loadingText="Loading the latest price from TradingView."
           />
         </div>
