@@ -67,6 +67,11 @@ Everything else (technicals, financials, filings, analyst tab, industry news, bu
 - Still read each free API's terms: some free tiers are "personal use only" and may not allow showing data on a public site, even a free one. Pick sources that allow it, and credit them on the site.
 - Non-commercial does not mean anything goes. Open source code is free to use within its license. Data is different: a free, public, no-ads site still has to follow each data source's display rules. Public-domain sources (like SEC EDGAR for filings and reported financials) are the safest foundation.
 
+## Where this site is different (direction check, November 2026)
+- Do not rebuild what industry leaders already do well. The price chart is TradingView's, and that is fine.
+- The site's own angle is twofold: AI tools that help people understand the data in front of them, and gathering in one place the data that single sources leave out.
+- When choosing what to build next, prefer what feeds or shows off that angle.
+
 ## AI research layer (the core value)
 The research for these big stocks is done for the user, using far more data than they'd gather themselves:
 - Bull case and bear case rundowns

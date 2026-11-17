@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 2 (Real data). SEC figures are confirmed working on the live site. The TradingView widgets were rebuilt in a different format and merged
-- **Next action:** Eyal: reload the live site and say whether the price and the chart now show
-- **Blocked on:** that check
+- **Current phase:** Phase 2 (Real data) is done apart from two small leftovers. Phase 3 (News) is next
+- **Next action:** Eyal: say "go" on Phase 3, and whether the company's SEC filings should be pulled forward into it (Claude's suggestion)
+- **Blocked on:** that answer
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -59,7 +59,7 @@ Each phase ends with something working and visible. Don't start the next phase u
 - [x] Choose a market data source and confirm its terms allow display on a public site (SEC EDGAR for financials, TradingView widgets for prices)
 - [x] Build a backend/API layer so API keys never reach the browser (`src/lib/sec.ts` runs on the server only, and the SEC contact details live in a private setting)
 - [x] Add caching so the site stays within free-tier limits (the SEC is asked about once an hour, and a failure is retried after a minute)
-- [ ] Live price and price chart from TradingView's widgets (rebuilt in TradingView's script-embed format. Waiting for Eyal to confirm they appear on the live site)
+- [x] Live price and price chart from TradingView's widgets (confirmed working on the live site by Eyal, 2026-11-17)
 - [x] Metrics tab with real data (reported financials from the SEC)
 - [ ] Price-based figures (market cap, P/E): the price panel under the company name may already show them. Check once it is confirmed working, and add a fundamentals panel if not
 - [x] Loading states and error states (gray placeholder bars while loading, a plain message when the SEC or TradingView cannot be reached. Both were tested)
@@ -204,6 +204,7 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-17 | TradingView widgets use the older script-embed format, not the newer "web component" format | The newer format was tried first and did not load on the live site: its exact code is only given out after signing in, so part of it was guessed. The older format is written out in full in TradingView's tutorial. The cost: a widget has to be rebuilt when the visitor switches theme |
 | 2026-11-17 | The sample chart and the Lightweight Charts library were removed | The price chart now comes from TradingView's widget. The library can come back for our own charts of SEC figures over time (Phase 7) |
 | 2026-11-17 | Quarter 4 figures are worked out as full year minus the first three quarters | Companies do not report the fourth quarter on its own. Checked against the real data: the four quarters add up exactly to the reported full year |
+| 2026-11-17 | Direction check from Eyal: do not rebuild what leaders already do well (charts stay with TradingView). The site's own angle is AI tools that help people understand the data, and pulling together data that single sources lack | Keeps effort on what makes the site different. Every new feature should be judged against this |
 | 2026-11-17 | SEC EDGAR is the source for filings and reported financials | It is the only source checked that is free, needs no key and explicitly allows reuse on a public site. Every route for prices uses it |
 | 2026-11-16 | Hosting stays on Vercel's free plan. Eyal will pay if a limit gets in the way | Removes hosting cost as a reason to compromise the design |
 
@@ -224,3 +225,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17 (fourth session):** Eyal chose route 1 and gave a contact email for the SEC. Built the SEC data layer (`src/lib/sec.ts` for fetching and caching, `src/lib/financials.ts` for the math, `src/lib/stats.ts` for display) and put real figures on the header, the Overview and the Metrics tab. Checked the math against the SEC's own full-year totals. Replaced the sample chart and sample price with TradingView widgets. Two snags: (1) TradingView's widget server refuses requests from Claude's workspace, so the widgets could not be seen working here, only their fallback message. (2) Node programs in the workspace need an extra setting to reach the internet, now noted in CLAUDE.md. Tested: real figures render in both themes on desktop and phone, and the failure message shows when the SEC is unreachable. Next: Eyal adds the Vercel setting and checks the preview.
 - **2026-11-17 (fifth session):** Eyal added the `SEC_USER_AGENT` setting in Vercel but was unsure about some of the choices there, saw no change on the site (the work was still on the branch), and asked for everything to be merged so it is saved and visible. Merged pull request 4. The widgets go live unverified, with their fallback text as the safety net. Next: Eyal reports what the live site shows, and anything missing gets fixed from there.
 - **2026-11-17 (sixth session):** Eyal confirmed the SEC figures show on the live site, and that the TradingView widgets did not load. Cause: the widgets used TradingView's newer format with a partly guessed address. Rebuilt them in the script-embed format from TradingView's tutorial, with a price panel under the company name and the full chart. Tested in the workspace: the scripts load, the frames appear on every tab, they rebuild in the right theme when switching, and there are no page errors. The live numbers could not be seen here. Merged pull request 5. Next: Eyal confirms on the live site.
+- **2026-11-17 (seventh session):** Eyal confirmed the TradingView price and chart work on the live site and restated the direction: lean on leaders for what they do well, and make AI help and gathered data the site's own angle. No code changed. Leftovers from Phase 2: check whether the price panel shows market cap and P/E, and tidy the company name appearing twice at the top. Next: Phase 3 (News), on Eyal's go.
