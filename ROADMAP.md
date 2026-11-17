@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 3 (News). Every sub-step is built: official filings with their attached press releases, company announcements, industry news from seven peer companies, and TradingView's coverage
-- **Next action:** Eyal: check the News tab on the live site and say whether it meets "useful enough that I'd actually check it". If yes, Phase 3 is done and Phase 4 (production hardening and launch) starts
-- **Blocked on:** Eyal's verdict
+- **Current phase:** Phase 3 (News), extended with three sub-steps Eyal asked for: the database (3.9), friendly titles (3.10) and news sub-tabs (3.11)
+- **Next action:** Eyal: check the live site, then create the Neon database from Vercel (steps under 3.9) and tell Claude when it is done
+- **Blocked on:** the database, which needs Eyal's Vercel account
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -115,6 +115,15 @@ Every item also gets a **topic** (earnings, product, leadership, legal, deals, a
 - [x] 3.6 Media coverage as data the AI can use: decided in 3.2. No source checked lets our code store and summarize media articles for a public site, so in Phase 5 the AI finds and reads coverage itself (Claude's web search and web fetch tools) while writing a brief. We store only the brief, short quotes and links
 - [x] 3.7 Where news is stored: decided in 3.2. A Postgres database on Neon's free plan, filled by a scheduled job on GitHub Actions. Set up at the start of Phase 5, when something first needs storing
 - [x] 3.8 News tab laid out by category, with every source credited. Our own sections come first (official filings, company announcements, industry), TradingView's coverage after. Keyword filtering is dropped: our code holds no media items until Phase 5, and then the AI judges what is relevant
+- [ ] 3.9 Database: Postgres on Neon's free plan (Eyal chose it, 2026-11-17; moved up from Phase 5). First jobs: keep each filing's attachment titles once they are read, so the SEC is not asked again on every refresh, and keep the newsroom's history, since its feed only holds the last 20 items
+- [ ] 3.10 Friendly titles (Eyal's request): use the company's own attachment title as the headline when there is one ("NVIDIA Announces CEO Transition" in place of "Leadership or board change"), turn ALL-CAPITAL titles into normal case, and trim legal wording. AI rewrites what rules cannot fix, in Phase 5
+- [ ] 3.11 News sub-tabs (Eyal's request): each section opens into its own page with more items (Filings, Announcements, Industry, Coverage), reached from a row of sub-tabs under the main tabs
+
+**Eyal's steps for 3.9:**
+1. In Vercel, open the project and find Neon Postgres (the Storage tab, or the Marketplace under Native Integrations). Neon's guide recommends this "Vercel-Managed" route for anyone new to Neon.
+2. Create a database on the Free plan, in a US East region (near where Vercel runs the site by default).
+3. Connect it to this project for Production, Preview and Development. Vercel then adds the connection settings to the project on its own.
+4. Do not send the password or connection string to Claude. Claude tests against a local copy of Postgres in its workspace, and the live site gets the settings from Vercel.
 
 **Done when:** the news tab is useful enough that I'd actually check it.
 
@@ -162,7 +171,7 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 **Done when:** v1 is publicly launched and I'd be comfortable sending the link to anyone.
 
 ### Phase 5: Automation and AI research layer
-- [ ] Database: Postgres on Neon's free plan (decided in 3.2). Eyal creates the account and connects it to Vercel
+- [ ] Use the database from 3.9 for the collector's items and the AI briefs
 - [ ] Scheduled jobs that refresh data and news on their own: a collector on GitHub Actions, about every 30 minutes, storing filings, attached press releases and newsroom items so the AI can look back over days
 - [ ] AI news briefs (Eyal's idea, 2026-11-17): group stories about the same event, then write one brief per event. Each brief says what happened, what is confirmed, what is only reported, where sources disagree, what is still unknown, and links every source. Shown as small cards that open into the full brief. Built as a fixed workflow that runs on a schedule, not a free-roaming agent. Eyal's additions: use short direct quotes, credited and linked, so nobody's words get reworded wrong. Sensitive topics (leadership, legal, scandals, rumors) get stricter rules: only what a named source says, labeled as reported until an official source confirms it. The AI may also search the web for stories the regular sources miss. Decided in 3.2: media coverage is found with Claude's web search and read with web fetch, since no news source allows our code to store it
 - [ ] AI daily digest: what happened and why it matters
@@ -190,6 +199,7 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 - [ ] Technicals: indicators on the chart and a summary section
 - [ ] Full chart workspace (Eyal's request): its own full-screen view with drawing tools, chart types, more timeframes and on-canvas options, in the style of TradingView or a broker platform
 - [ ] Auto-updating "buzzwords" per company for news filtering
+- [ ] Partners and investments (Eyal's idea, 2026-11-17): the companies NVIDIA invests in and partners with, recent and big ones first. Sources found: its quarterly holdings report to the SEC (form 13F: on Sep 30, 2026 it held shares in 8 public companies worth $48.3B, led by Space Exploration Technologies, Intel and CoreWeave), deal filings (agreements and acquisitions), and partnership announcements in the newsroom. Private stakes only show up in announcements. Can move before the launch if Eyal wants it in v1
 
 **Done when:** Stage 1 matches the full vision in PROJECT_BRIEF.md.
 
@@ -229,8 +239,7 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 - [ ] How to package workflows as Claude Code skills, commands or subagents
 - [ ] What AI-written news briefs may contain. Working rule until researched: facts in our own words plus short direct quotes, each credited and linked. Never whole articles or paywalled text. Official filings can be quoted freely. This area of law is unsettled, so check it properly before Phase 5
 - [ ] Project name and domain
-- [ ] Database choice, to settle at the start of Phase 5: Postgres on Neon (recommended in 3.2) or MongoDB, which Eyal raised, and whether paid hosting such as Hostinger is worth it. Claude's view: Postgres fits better (the data is structured, Eyal knows SQL from CS50, and Postgres has built-in search for the chatbot later). MongoDB Atlas's free tier is smaller (512 MB). A paid server has to be maintained, and nothing planned needs one yet
-- [ ] SEC request volume: each refresh of the News tab reads up to about 50 SEC pages (filings, their attachments and peer filings), spaced to stay under the SEC's limit. Watch it in Phase 4, and move it into the Phase 5 database if it becomes a problem
+- [ ] SEC request volume: each refresh of the News tab reads up to about 50 SEC pages (filings, their attachments and peer filings), spaced to stay under the SEC's limit. The database in 3.9 removes most of them
 - [ ] GDELT as a free radar for media stories: test it from GitHub Actions in Phase 5, since it refused every call from Claude's workspace
 - [ ] Company logos (Eyal wants them, like other finance sites have): research how those sites get them. Likely a logo service with terms that allow display, or the company's own brand guidelines. For now the site shows a plain tile with the ticker
 - [ ] Check the exact credit wording TradingView asks for (the NOTICE file in their GitHub repo) before the v1 launch
@@ -262,6 +271,8 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-17 | TradingView widgets use the older script-embed format, not the newer "web component" format | The newer format was tried first and did not load on the live site: its exact code is only given out after signing in, so part of it was guessed. The older format is written out in full in TradingView's tutorial. The cost: a widget has to be rebuilt when the visitor switches theme |
 | 2026-11-17 | The sample chart and the Lightweight Charts library were removed | The price chart now comes from TradingView's widget. The library can come back for our own charts of SEC figures over time (Phase 7) |
 | 2026-11-17 | Quarter 4 figures are worked out as full year minus the first three quarters | Companies do not report the fourth quarter on its own. Checked against the real data: the four quarters add up exactly to the reported full year |
+| 2026-11-17 | Database: Postgres on Neon, created through Vercel. Moved up from Phase 5 into Phase 3 | Eyal chose it over MongoDB and paid hosting. Concrete needs now: fewer SEC requests, stored friendly titles, and news history for the sub-tabs. Postgres fits structured data and the SQL from CS50 |
+| 2026-11-17 | SEC limits: a speed limit of 10 requests a second, with no daily or monthly cap on its pages | The SEC's own words: "no more than 10 requests per second, regardless of the number of machines", and it may "block IP addresses that submit excessive requests". The site paces itself at about 8 a second |
 | 2026-11-17 | Peer companies for industry news: AMD, Intel, Broadcom, Marvell (rivals), TSMC, Micron, ASML (supply chain) | Eyal suggested AMD, Intel, ASML, TSMC and the SMH ETF. The list keeps the companies whose news actually moves NVIDIA and leaves out the rest of SMH as noise. All file with the SEC |
 | 2026-11-17 | News tab order: our own sections first (official filings, company announcements, industry), TradingView's coverage after | Eyal does not want the news dominated by TradingView. The AI briefs in Phase 5 will add the most value on top |
 | 2026-11-17 | Attachment titles are read from the first 32 KB of each document, with a rule for what counts as a headline | The SEC's lists only say "EX-99.1". Tested on NVIDIA, AMD, Intel, Marvell, Micron, TSMC and ASML documents, including foreign company reports |
@@ -302,3 +313,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17 (ninth session):** Eyal approved the categories and sub-steps, and added rules for the AI briefs: short direct quotes, stricter care on sensitive topics, and AI web search. Built the first version of the News tab: the company's last 12 SEC filings with plain-language titles and links to the original documents, plus TradingView's company news and market news feeds. The Overview now shows the latest three filings. Removed all placeholder news, so no sample data is left anywhere. Tested both themes on desktop and phone. A full-page screenshot showed the news feeds blank in dark mode, but scrolling to them showed they work: a screenshot quirk, now noted in CLAUDE.md. Merged pull request 7. Next: 3.2, source research for company announcements and for news our own code can hold.
 - **2026-11-17 (tenth session):** Did 3.2, the news source research, reading each provider's terms at the source where possible and testing real calls. Eyal approved 14 more sites for Claude's workspace; a later request for 2 more (theguardian.com, gdeltproject.org) did not go through, so those two terms pages are marked as not read. Findings: official sources are open (SEC filings carry the company's own press releases, and the company's newsroom feed allows non-commercial use), but no media news source allows our code to store and summarize articles for a public site. Answered Eyal's questions on databases, hosting, agents and workflows: Neon Postgres, GitHub Actions and Vercel cover it for free, with Claude's web search for media coverage in Phase 5. Cross-check on a live case: the Nov 12 filing and its attached press release confirm the CEO change but give no reason. No code changed. Next: 3.4 on Eyal's go.
 - **2026-11-17 (eleventh session):** Saved the data source check as a skill. Researched peer companies (Eyal suggested AMD, Intel, ASML, TSMC and the SMH ETF) and picked seven rivals and suppliers. Built 3.4 and the industry section: the newsroom feed as "Company announcements", attached press releases listed under each filing with their real titles, and peers' newsworthy filings, including foreign companies' 6-K reports. The title rule was tuned on real documents until junk titles like "NEWS RELEASE" and an address line were gone. Added the latest announcements to the Overview and credited the newsroom in the footer. Checked both themes on desktop and phone, no errors. Eyal raised MongoDB and paid hosting: logged as a Phase 5 choice with Claude's view. Merged pull request 9. Next: Eyal's verdict on the News tab, then Phase 4.
+- **2026-11-17 (twelfth session):** Eyal asked for friendly titles, news sub-tabs and the database, raised partnerships as something worth tracking, and asked about the SEC's limits. Answered the limits from the SEC's own pages. Checked a source for partnerships: NVIDIA's quarterly 13F holdings report lists 8 companies it owns shares in. Added 3.9 to 3.11 to Phase 3 and partners to Phase 7, with the database steps for Eyal. No code changed. Next: Eyal checks the site and creates the database.
