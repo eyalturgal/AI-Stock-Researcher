@@ -1,31 +1,12 @@
-// SAMPLE DATA for Phase 1. None of this is real.
+// PLACEHOLDER NEWS. None of this is real.
 //
-// It exists so the design can be built and judged before any data source is
-// connected. In Phase 2 this file is replaced by real data, and the pages
-// keep working because they only care about the shapes defined below.
-//
-// The numbers are made up on purpose, and the news items are obvious
-// placeholders, so nothing here can be mistaken for real information.
+// Prices and financial figures on the site are now real. News is the one
+// part still waiting for a data source (Phase 3), so these stand-in items
+// keep the layout in place until then. They are worded as obvious
+// placeholders so nothing here can be mistaken for a real headline, and the
+// pages that show them say so.
 
 import { stockConfig } from "@/config/stock";
-
-// ---------- Shapes (what each piece of data looks like) ----------
-
-export type PricePoint = {
-  time: string; // a day, written as YYYY-MM-DD
-  value: number; // closing price that day
-};
-
-export type Stat = {
-  label: string;
-  value: string;
-  hint?: string;
-};
-
-export type StatGroup = {
-  title: string;
-  stats: Stat[];
-};
 
 export type NewsCategory = "Company" | "Industry" | "Market";
 
@@ -37,115 +18,6 @@ export type NewsItem = {
   source: string;
   age: string;
 };
-
-// ---------- Price history ----------
-
-// A tiny random number generator that always produces the same sequence.
-// Math.random() would give different prices on every page load.
-function createRandom(seed: number) {
-  let state = seed;
-  return () => {
-    state = (state + 0x6d2b79f5) | 0;
-    let t = Math.imul(state ^ (state >>> 15), 1 | state);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-// The last day of the sample history. A fixed date, not "today", because
-// sample data should not pretend to be current.
-const LAST_DAY = Date.UTC(2026, 10, 13); // 13 November 2026
-const ONE_DAY = 24 * 60 * 60 * 1000;
-
-function buildPriceHistory(tradingDays: number): PricePoint[] {
-  // Collect weekdays, walking backwards from the last day.
-  const days: string[] = [];
-  for (let t = LAST_DAY; days.length < tradingDays; t -= ONE_DAY) {
-    const weekday = new Date(t).getUTCDay();
-    if (weekday !== 0 && weekday !== 6) {
-      days.unshift(new Date(t).toISOString().slice(0, 10));
-    }
-  }
-
-  // A "random walk": each day moves a little from the day before.
-  const random = createRandom(42);
-  let price = 100;
-  return days.map((time) => {
-    const dailyMove = (random() - 0.47) * 0.045;
-    price = Math.max(20, price * (1 + dailyMove));
-    return { time, value: Math.round(price * 100) / 100 };
-  });
-}
-
-// About one year of trading days.
-export const samplePrices: PricePoint[] = buildPriceHistory(252);
-
-// ---------- Quote (the headline price), worked out from the history ----------
-
-const lastPoint = samplePrices[samplePrices.length - 1];
-const previousPoint = samplePrices[samplePrices.length - 2];
-const allValues = samplePrices.map((point) => point.value);
-
-export const sampleQuote = {
-  price: lastPoint.value,
-  previousClose: previousPoint.value,
-  change: lastPoint.value - previousPoint.value,
-  changePercent:
-    ((lastPoint.value - previousPoint.value) / previousPoint.value) * 100,
-  asOf: lastPoint.time,
-  yearHigh: Math.max(...allValues),
-  yearLow: Math.min(...allValues),
-};
-
-// ---------- Metrics ----------
-
-// Shown next to the price at the top of every page.
-export const sampleHeadlineStats: Stat[] = [
-  { label: "Market cap", value: "$1.20T" },
-  { label: "Volume", value: "48.2M" },
-];
-
-// The short list on the Overview tab.
-export const sampleKeyStats: Stat[] = [
-  { label: "P/E ratio", value: "32.4" },
-  { label: "Forward P/E", value: "26.8" },
-  { label: "EPS (12 months)", value: "$4.15" },
-  { label: "Revenue (12 months)", value: "$66.3B" },
-  { label: "Gross margin", value: "72.5%" },
-  { label: "Dividend yield", value: "0.03%" },
-];
-
-export const sampleStatGroups: StatGroup[] = [
-  {
-    title: "Valuation",
-    stats: [
-      { label: "Market cap", value: "$1.20T", hint: "Total value of all shares" },
-      { label: "P/E ratio", value: "32.4", hint: "Price divided by yearly earnings per share" },
-      { label: "Forward P/E", value: "26.8", hint: "Same, using next year's expected earnings" },
-      { label: "Price to sales", value: "18.1", hint: "Market cap divided by yearly revenue" },
-    ],
-  },
-  {
-    title: "Profitability",
-    stats: [
-      { label: "Revenue (12 months)", value: "$66.3B", hint: "Total sales over the last year" },
-      { label: "Net income (12 months)", value: "$31.0B", hint: "Profit left after all costs and taxes" },
-      { label: "Gross margin", value: "72.5%", hint: "Share of revenue left after the cost of making the product" },
-      { label: "EPS (12 months)", value: "$4.15", hint: "Earnings per share" },
-    ],
-  },
-  {
-    title: "Trading",
-    stats: [
-      { label: "Volume", value: "48.2M", hint: "Shares traded today" },
-      { label: "Average volume", value: "52.7M", hint: "Typical daily volume over 3 months" },
-      { label: "Beta", value: "1.68", hint: "How much it swings compared with the market. 1 is the same as the market" },
-      { label: "Dividend yield", value: "0.03%", hint: "Yearly dividend as a share of the price" },
-    ],
-  },
-];
-
-// ---------- News ----------
 
 export const sampleNews: NewsItem[] = [
   {

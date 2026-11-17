@@ -1,4 +1,4 @@
-import type { Stat } from "@/data/sample";
+import type { Stat } from "@/lib/stats";
 
 // One number with its label and a short explanation. No box around it:
 // a thin line on top is enough to set it apart. Used on the Metrics tab

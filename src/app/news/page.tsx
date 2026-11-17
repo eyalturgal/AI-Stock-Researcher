@@ -16,7 +16,11 @@ const sections: { category: NewsCategory; title: string }[] = [
 // The News tab: one column per kind of news.
 export default function NewsPage() {
   return (
-    <div className="grid gap-x-14 gap-y-14 lg:grid-cols-3">
+    <div>
+      <p className="mb-8 text-sm text-ink-faint">
+        These are placeholders for now. Real news arrives in the next phase.
+      </p>
+      <div className="grid gap-x-14 gap-y-14 lg:grid-cols-3">
       {sections.map((section) => (
         <section key={section.category}>
           <SectionHeader title={section.title} />
@@ -25,6 +29,7 @@ export default function NewsPage() {
           />
         </section>
       ))}
+      </div>
     </div>
   );
 }
