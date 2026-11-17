@@ -29,7 +29,11 @@ import {
   parseAttachmentTable,
   subjectFromForeignReport,
   titleFromAttachment,
+  type FilingDetails,
 } from "@/lib/documents";
+import { loadFilingDetails, saveFilingDetails } from "@/db/store";
+
+export type { FilingDetails };
 
 // ---------- Talking to the SEC ----------
 
@@ -38,6 +42,12 @@ import {
 // which keeps us at about 8 a second however many run at once.
 const GAP_MS = 125;
 let nextSlot = 0;
+
+// Set SEC_LOG_REQUESTS=1 to print every request the site makes to the SEC.
+// Useful for checking how many requests a page costs.
+function logRequest(url: string): void {
+  if (process.env.SEC_LOG_REQUESTS) console.info("SEC request:", url);
+}
 
 async function waitTurn(): Promise<void> {
   const now = Date.now();
@@ -62,6 +72,7 @@ function secHeaders(): Record<string, string> {
 async function secFetch<T>(url: string): Promise<T> {
   const headers = { ...secHeaders(), Accept: "application/json" };
   await waitTurn();
+  logRequest(url);
   const response = await fetch(url, {
     headers,
     // Give up after 15 seconds so a slow answer cannot hang the page.
@@ -84,6 +95,7 @@ async function secFetchText(url: string, maxBytes: number): Promise<string> {
     Range: `bytes=0-${maxBytes - 1}`,
   };
   await waitTurn();
+  logRequest(url);
   const response = await fetch(url, {
     headers,
     signal: AbortSignal.timeout(15_000),
@@ -206,16 +218,9 @@ export async function getIndustryFilings(
 
 // ---------- What is inside a filing ----------
 
-export type FilingDetails = {
-  // For foreign company reports: the subject, read from the document.
-  subject: string | null;
-  // Attached press releases and similar documents, with their own titles.
-  attachments: { title: string; url: string }[];
-};
-
 // Look inside one filing for its attachments and, for foreign company
 // reports, its subject. A filing never changes once published, so the
-// answer is kept for as long as possible.
+// answer is read from the SEC once, then kept in the database.
 export async function getFilingDetails(filing: {
   cik: string;
   id: string;
@@ -223,6 +228,12 @@ export async function getFilingDetails(filing: {
   titleFromDocument: boolean;
 }): Promise<FilingDetails> {
   "use cache";
+
+  const stored = await loadFilingDetails(filing.id);
+  if (stored) {
+    cacheLife("max");
+    return stored;
+  }
 
   const folder = filingFolder(filing.cik, filing.id);
   try {
@@ -243,8 +254,10 @@ export async function getFilingDetails(filing: {
       subject = subjectFromForeignReport(head) ?? attachments[0]?.title ?? null;
     }
 
+    const details = { subject, attachments };
+    await saveFilingDetails(filing.id, filing.cik, details);
     cacheLife("max");
-    return { subject, attachments };
+    return details;
   } catch (error) {
     console.error(`Could not read filing ${filing.id}:`, error);
     // The filing still shows, just without its attachments. Try again soon.

@@ -14,7 +14,8 @@ export type Announcement = {
   kind: "Announcement" | "Blog post";
   title: string;
   url: string;
-  publishedOn: string; // YYYY-MM-DD
+  publishedAt: string; // the full date and time, for sorting
+  publishedOn: string; // YYYY-MM-DD, for showing
   summary: string;
 };
 
@@ -67,14 +68,15 @@ export function parseNewsroomFeed(xml: string, limit: number): Announcement[] {
       kind: new URL(url).hostname.includes("blog") ? "Blog post" : "Announcement",
       title: plainText(item.title),
       url,
+      publishedAt: published.toISOString(),
       publishedOn: published.toISOString().slice(0, 10),
       // Feeds often end a summary with "[…]". It is cut off, then shortened.
       summary: shorten(plainText(item.description ?? "").replace(/\[…\]$|\[\.\.\.\]$/, "").trim(), 220),
     });
   }
 
-  // Newest first. Items from the same day keep the feed's own order.
+  // Newest first.
   return announcements
-    .sort((a, b) => b.publishedOn.localeCompare(a.publishedOn))
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
     .slice(0, limit);
 }
