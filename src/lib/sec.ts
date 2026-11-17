@@ -12,6 +12,10 @@
 //    functions return null and the page shows a friendly message.
 // 4. The SEC's limit of 10 requests a second is respected (see waitTurn).
 
+// Server only: this file reads private settings or the database. The line
+// below makes the build fail if it is ever pulled into code that runs in
+// the visitor's browser.
+import "server-only";
 import { cacheLife } from "next/cache";
 import { stockConfig } from "@/config/stock";
 import {

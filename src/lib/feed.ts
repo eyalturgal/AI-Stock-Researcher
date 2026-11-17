@@ -56,11 +56,14 @@ export function parseNewsroomFeed(xml: string, limit: number): Announcement[] {
 
   const announcements: Announcement[] = [];
   for (const item of items) {
+    // Each item is checked on its own, so one bad item cannot stop the
+    // rest of the feed from loading.
     if (!item.title || !item.link || !item.pubDate) continue;
     const published = new Date(item.pubDate);
     if (Number.isNaN(published.getTime())) continue;
 
-    const url = item.link.trim();
+    const url = webAddress(item.link);
+    if (!url) continue;
     announcements.push({
       id: url,
       // Company blogs live on an address with "blog" in it. Everything else
@@ -79,4 +82,17 @@ export function parseNewsroomFeed(xml: string, limit: number): Announcement[] {
   return announcements
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
     .slice(0, limit);
+}
+
+// Only ordinary web links are kept. A link written as "javascript:..." would
+// run code when a visitor clicks it, and a link that is not an address at
+// all would make the item useless. Returns the link as written, or null.
+export function webAddress(link: string): string | null {
+  const trimmed = link.trim();
+  try {
+    const { protocol } = new URL(trimmed);
+    return protocol === "https:" || protocol === "http:" ? trimmed : null;
+  } catch {
+    return null;
+  }
 }

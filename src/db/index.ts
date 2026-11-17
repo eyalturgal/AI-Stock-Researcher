@@ -6,6 +6,10 @@
 // The database is optional. Without DATABASE_URL, db is null and the site
 // still works: it reads everything from its sources each time, as before.
 
+// Server only: this file reads private settings or the database. The line
+// below makes the build fail if it is ever pulled into code that runs in
+// the visitor's browser.
+import "server-only";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "@/db/schema";

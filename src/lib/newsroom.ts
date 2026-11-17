@@ -2,6 +2,10 @@
 // blog posts. In the site's news plan this is category B, "Company
 // announcements": first-hand, but written by the company to look good.
 
+// Server only: this file reads private settings or the database. The line
+// below makes the build fail if it is ever pulled into code that runs in
+// the visitor's browser.
+import "server-only";
 import { cacheLife } from "next/cache";
 import { stockConfig } from "@/config/stock";
 import { parseNewsroomFeed, type Announcement } from "@/lib/feed";
