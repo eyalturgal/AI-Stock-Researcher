@@ -34,7 +34,7 @@ Update ROADMAP.md:
 - Check work with `npm run lint` and `npm run build` before committing.
 - In Claude's cloud workspace, run Node commands that need the internet with `NODE_USE_ENV_PROXY=1` in front (for example `NODE_USE_ENV_PROXY=1 npm run build`). Without it the SEC cannot be reached and the build shows the failure message. This is a workspace quirk, not needed on Vercel or a normal computer.
 - TradingView widgets use the script-embed format from TradingView's own tutorial (scripts on `s3.tradingview.com`, settings as JSON inside the script tag). Take settings from their docs at `https://www.tradingview.com/widget-docs/` (add `.md` to a page address for a plain-text copy). Do not guess widget names or addresses.
-- In Claude's cloud workspace the widget frames appear but their live numbers do not, because TradingView's data feed is not on the allow-list. Eyal confirms the numbers on the live site.
+- TradingView widgets load fully in Claude's cloud workspace (their sites are on the allow-list). Give them about 10 seconds before taking a screenshot. Always check them in the dark theme too.
 - Claude's cloud workspace can only reach websites on its allow-list. Before using a new data source, ask Eyal to approve adding its host, then test real calls. Never fake a response from a source that could not be reached.
 
 ## Project rules
