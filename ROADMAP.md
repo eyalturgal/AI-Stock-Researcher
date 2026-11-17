@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 4 (Production hardening and v1 launch). The security pass is done
-- **Next action:** Eyal: two-factor sign-in and GitHub's security settings (second item in Phase 4). Claude, on Eyal's go: trim the workspace allow-list, then basic monitoring and error alerts
-- **Blocked on:** nothing
+- **Current phase:** Phase 4 (Production hardening and v1 launch). Done: security pass, monitoring, allow-list trim
+- **Next action:** Eyal: two-factor sign-in and GitHub's security settings (second item in Phase 4). Then the rest of Phase 4: analytics (optional), the domain, the project card, and the security and error check before the v1 launch
+- **Blocked on:** the domain needs a name (Eyal)
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -169,11 +169,12 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 - [x] Security pass: secrets in environment variables, rate limiting, input validation, HTTPS, dependency scanning. Done 2026-11-17, results below
 - [ ] Eyal: turn on two-factor sign-in for GitHub, Vercel, Neon and the email account behind them. Then in the repo on GitHub: Settings, then "Advanced Security" (in the "Security and quality" part of the sidebar), and enable Secret Protection, Push protection and Dependabot alerts
 - [x] Database settings as Secret in Vercel (done by Eyal, 2026-11-17). The Neon connection created them as "Config" (readable again in the dashboard by anyone with access to the project). Vercel does not allow switching integration variables to Secret in the list. Its documented route: disconnect the database from the project, optionally reset the database password in Neon, reconnect with Development unticked and "Sensitive" turned on in the advanced options, then redeploy
-- [ ] Trim Claude's workspace allow-list: remove sites that were only needed for research or were ruled out (Alpha Vantage, Finnhub, Twelve Data, FMP, Marketaux, NYT, the Guardian, Google News). Keep the live site, added 2026-11-17 so Claude can check each deployment
-- [ ] Basic monitoring/error alerts
+- [x] Trim Claude's workspace allow-list: remove sites that were only needed for research or were ruled out (Alpha Vantage, Finnhub, Twelve Data, FMP, Marketaux, NYT, the Guardian, Google News). Keep the live site, added 2026-11-17 so Claude can check each deployment. Done 2026-11-17: 9 removed, 20 left (the SEC, TradingView, NVIDIA's newsroom, GDELT for the Phase 5 test, the database and docs sites, the live site)
+- [x] Basic monitoring/error alerts. Done 2026-11-17: GitHub checks the live site every three hours (`.github/workflows/live-check.yml` runs `scripts/check-live.sh`). If a page fails, misses a security header or shows a "could not be loaded" message twice in a row, five minutes apart, it opens a "Live site check failed" issue, which emails Eyal. First run on GitHub: passed
 - [ ] Privacy-friendly analytics (optional). Note: TradingView's widget frames already run TradingView's own visitor tracking (seen in testing: snowplow-pixel.tradingview.com), outside our control
 - [ ] Buy and connect the project's domain (name still undecided)
 - [ ] Add a project card on eyalturgal.com linking to it
+- [ ] Security and error check before the v1 launch (the `security-and-error-check` skill)
 
 **Security pass results (2026-11-17).** What could go wrong for this site, how it was checked, and what was done.
 
@@ -201,6 +202,7 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 - [ ] AI research papers that summarize one part of the picture (a filing, an earnings call)
 - [ ] Every AI-written piece shows its sources and a "not financial advice" note
 - [ ] Save each of these as reusable skills/agents/workflows that take a ticker as input
+- [ ] Security and error check: a heavy phase (an AI key, AI costs, scheduled jobs)
 
 **Done when:** the site updates its research every day without me touching it.
 
@@ -208,6 +210,7 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 - [ ] Chatbot answers questions using the site's own data (prices, metrics, news, research)
 - [ ] Rate limiting per user and a hard monthly spending cap
 - [ ] Clear note that it's not financial advice
+- [ ] Security and error check: a heavy phase (visitor questions, rate limiting, AI costs)
 
 **Done when:** a visitor can ask "why did NVDA drop this week?" and get a grounded, sourced answer.
 
@@ -222,6 +225,7 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 - [ ] App-style layout (Eyal's idea, 2026-11-17): the site still feels like it floats in empty space. Divide the screen into regions with lines that run edge to edge, the way Vercel, GitHub, YouTube and TradingView's Supercharts do (a sidebar, a main area, a side panel), so every piece sits in its own area. Lines between regions, not boxes around everything, which felt claustrophobic in Phase 1. Best done once there is content to fill the regions, such as the chatbot (Phase 6) and the list of stocks (Phase 9)
 - [ ] Auto-updating "buzzwords" per company for news filtering
 - [ ] Partners and investments (Eyal's idea, 2026-11-17): the companies NVIDIA invests in and partners with, recent and big ones first. Sources found: its quarterly holdings report to the SEC (form 13F: on Sep 30, 2026 it held shares in 8 public companies worth $48.3B, led by Space Exploration Technologies, Intel and CoreWeave), deal filings (agreements and acquisitions), and partnership announcements in the newsroom. Private stakes only show up in announcements. Can move before the launch if Eyal wants it in v1
+- [ ] Security and error check at the Nvidia checkpoint
 
 **Done when:** Stage 1 matches the full vision in PROJECT_BRIEF.md.
 
@@ -238,10 +242,12 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 - [ ] Extend the database from Phase 5 for price history and comparisons across companies
 - [ ] Pages for all seven companies
 - [ ] Comparison views across companies
+- [ ] Security and error check (more pages: see the open question on SEC pacing with several build workers)
 
 ### Phase 10: Stage 3, AI stock tracker
 - [ ] Expand to a broader set of AI stocks
 - [ ] Sector-level research and news
+- [ ] Final security and error check
 
 ---
 
@@ -322,6 +328,9 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-17 | Top bar: the blur fixed, and its color made more solid (light 85%, dark 92%) | Eyal found text under the bar hard to read. The blur never worked in Chrome, Edge or Firefox: the CSS build kept only Safari's copy of the setting. The more solid color keeps text readable even where a browser draws blur poorly |
 | 2026-11-17 | The live site is on Claude's workspace allow-list | Claude can check each deployment after a merge |
 | 2026-11-17 | Content Security Policy of the fixed kind, set in `next.config.ts` | The nonce kind makes every page rebuild on each visit (Next.js guide), which would undo the caching that keeps SEC requests low. The fixed kind still limits scripts and frames to our own files and TradingView, and stops other sites from framing ours |
+| 2026-11-17 | A security and error check after each heavy phase, at the Nvidia checkpoint and at the end, saved as the `security-and-error-check` skill | Eyal's rule: check security again, and that everything built still works, after major updates and above all at the end. A skill makes each check the same thorough one |
+| 2026-11-17 | Monitoring: a scheduled GitHub Actions check that opens an issue when the live site fails | Free for a public repo, no new service or terms to check. An issue, because GitHub's own failure email goes to whoever last changed the schedule. A failed check is retried after five minutes, so a source busy for a moment does not raise an alarm |
+| 2026-11-17 | Claude's workspace allow-list trimmed to what the project uses | Fewer sites the workspace can reach means less that can go wrong. Sites can be added again when needed |
 | 2026-11-17 | Two developer-tool advisories left in place (`esbuild` via drizzle-kit, `picomatch`) | Neither reaches the live site, which ships with 0 known security holes. The only fix for `esbuild` breaks drizzle-kit, and `picomatch` has no fix yet. Dependabot will flag fixes once Eyal enables it |
 | 2026-11-17 | SEC requests wait in a queue, each leaving 125 ms after the one before | Measured on a test build: the old time-slot method let two requests leave 61 ms apart when the program was busy. The queue measured 125 ms at the least and 8 a second at most |
 
@@ -353,3 +362,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17 (fifteenth session):** Eyal shared the live address, now in Phase 0. Built 3.11, news sub-tabs: All news (a short version of every section, each with a "More…" link), Filings (40, back to May 2024), Announcements (every saved newsroom item), Industry (30) and Coverage (taller news boxes). The sub-tabs are listed in the site config and shown by a News layout, so the row stays in place between sub-pages. The main News tab stays marked on them, and on a phone the row scrolls to show the open sub-tab. Each source is now fetched as one list that every page takes the newest few from, so new pages add no requests. The build that read the extra filings got one "503" (busy) answer from the SEC, which the fallback handled. Measuring the rate behind it showed the old pacing could let two requests leave 61 ms apart when the program was busy (a peak of 9 in one second, under the limit of 10). Replaced it with a queue, remeasured at no gap under 125 ms and at most 8 a second. Builds are back to 9 SEC requests once filings are saved. Checked every page on desktop and phone in both themes. Claude's workspace cannot open the live site, so live checks stay with Eyal. Merged pull request 13. Next: Eyal's verdict on Phase 3, then Phase 4.
 - **2026-11-17 (sixteenth session):** Eyal gave the Phase 3 verdict: the News tab is "incredibly useful" (he keeps using it for a few days), so Phase 3 is closed. He approved adding the live site to Claude's workspace allow-list, and Claude confirmed 3.11 is live. He shared a layout idea for later, logged in Phase 7: an app-style layout divided into regions, like Vercel, GitHub and TradingView. He also reported that text under the top bar is hard to read. Cause: the bar's blur never worked in Chrome, Edge or Firefox, because the CSS build kept only Safari's copy of the setting. Fixed it for the bar and the glass panels, and made the bar's color more solid (light 85%, dark 92%). Checked both themes at rest and with text under the bar. This workspace's test browser draws blur poorly, so the final look is for Eyal to judge in a real browser. Merged pull request 14. Next: Phase 4, starting with the security pass.
 - **2026-11-17 (seventeenth session):** Started Phase 4 with the security pass, after reading the Next.js production checklist and its guides on data security and Content Security Policy. Checked for secrets in the git history and in the browser code (clean), library advisories (0 in what the site ships, 3 in developer tools: one fixed, two left with reasons), risky entry points (none: no forms, API routes or server actions), and the live headers (only HTTPS-only was sent, by Vercel). Added the server-only guard to the four files that read secrets or the database, and proved it with a test build that failed as intended. Added a Content Security Policy and four other safety headers, then loaded every page in both themes: nothing blocked, every widget loads. Outside links are now checked: only web links from the feed, only plain file names from the SEC. Along the way: the workspace had restarted and stopped the practice database, and the next build fell back to the live sources as designed. A command that ran a downloaded secret scanner without its confirmation prompt was refused by the workspace's safety check, so the scan was done with a search instead. Merged pull request 15. Next: Eyal's two-factor sign-in and GitHub settings, then the allow-list trim and monitoring.
+- **2026-11-17 (eighteenth session):** Eyal asked for a security and error check after every major update, after heavy phases and at the end. Saved it as the `security-and-error-check` skill with three tested scripts (secret scan, page check across both themes and phone size, SEC rate), and added a check task to Phases 4, 5, 6, 7, 9 and 10. Built monitoring: a GitHub Actions check of the live site every three hours that opens an issue when it fails. Its script passes on the live site and fails properly on a broken address. The first run on GitHub passed. Trimmed the workspace allow-list from 29 sites to 20. Testing found two things: the secret scan's first version reported a find when every count was 0 (fixed), and a test server started without the workspace's internet setting showed the fallback messages once its pages refreshed. That proved the site falls back and heals by itself, and the skill now says how to start the server. Merged pull requests 16 and 17. Next: Eyal's two-factor sign-in and GitHub settings, then the rest of Phase 4.
