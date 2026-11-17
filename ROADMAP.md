@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 1 (Static design). All four design passes are merged to `main` and live
-- **Next action:** Eyal: look at the live site, send the live URL, and either ask for more design changes or sign off on Phase 1 so Phase 2 (real data) can start
-- **Blocked on:** nothing. Eyal's review is the next input
+- **Current phase:** Phase 2 (Real data). Data source research is done, the choice is waiting on Eyal
+- **Next action:** Eyal: pick how prices get onto the site (see "Phase 2 research" below) and give the contact details the SEC asks automated tools to send
+- **Blocked on:** those two answers. No data code can be written or tested until both are in
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -51,11 +51,9 @@ Each phase ends with something working and visible. Don't start the next phase u
 - [x] Richer palette (Eyal's request): emerald and gold for "markets and money", cyan and violet for "AI and futuristic"
 - [x] Open layout (Eyal's feedback: the design felt claustrophobic, too central and too "AI looking"): wide page, tabs in a top bar, name and price straight on the page, glass kept for the top bar and the chart only
 - [x] Dark theme reworked (Eyal's feedback: light looks great, dark looked like a tech product demo, not a stock site): flat charcoal, no colored glow, solid panels, blue price line
-- [ ] Eyal reviews the design and asks for changes until it feels right
+- [x] Eyal reviews the design and asks for changes until it feels right (signed off 2026-11-17 by starting Phase 2. Looks work continues as real content arrives)
 
 **Done when:** the site looks finished and polished, even though the data is fake.
-
-The boxes above are a first pass. The phase is only done when Eyal signs off on the look.
 
 ### Phase 2: Real data
 - [ ] Choose a market data source and confirm its terms allow display on a public site
@@ -66,6 +64,25 @@ The boxes above are a first pass. The phase is only done when Eyal signs off on 
 - [ ] Loading states and error states (what users see when an API fails)
 
 **Done when:** the NVDA page shows real, updating data and nothing breaks when an API is slow or down.
+
+**Phase 2 research (2026-11-17): what each source allows.** Read from each provider's own terms page unless marked otherwise.
+
+| Source | What it has | Free plan allows a public site? | In their words |
+|---|---|---|---|
+| SEC EDGAR (data.sec.gov) | Filings, reported financials (revenue, earnings, EPS and more), share counts. Updated within about a minute of a filing. No prices, news or analyst data | Yes. No key, no cost | "All Government-created content on sec.gov and EDGAR public filing content are free to access and reuse." Rules: at most 10 requests a second, and automated tools must name themselves with a contact address |
+| TradingView widgets | Price charts with drawing tools and indicators, price and fundamentals panels. Embedded as a ready-made block, their data | Yes, with TradingView branding kept | "a free and powerful chart for you to easily embed onto any website". Paying does not unlock real-time data in widgets |
+| Finnhub | Prices, fundamentals, news, analyst data | No | "You hereby agree to not redistribute or share access to data or derived results from the data ... with anyone or any 3rd party without written approval" |
+| Alpha Vantage | Prices, fundamentals, news | No | Free use is "personal, non-commercial". Anything beyond activities "that are private and individual in nature" counts as commercial |
+| Financial Modeling Prep | Prices, fundamentals, analyst data | No | "Free does not mean exempt." A public portfolio or demonstration site is listed as data display that needs an agreement first |
+| Twelve Data | Prices, fundamentals | No on the free plan | Free plan is internal use only. External display needs a business plan (reported at about $149 a month, not confirmed with them) |
+| Massive (was Polygon) | Prices | Probably not | Not read at the source. Reviews say individual plans are personal use only |
+
+Sources: [SEC webmaster FAQ](https://www.sec.gov/about/webmaster-frequently-asked-questions), [SEC EDGAR APIs](https://www.sec.gov/search-filings/edgar-application-programming-interfaces), [SEC website dissemination policy](https://www.sec.gov/about/privacy-information), [TradingView widgets](https://www.tradingview.com/widget/), [TradingView policies](https://www.tradingview.com/policies/), [Finnhub terms](https://finnhub.io/terms-of-service), [Alpha Vantage terms](https://www.alphavantage.co/terms_of_service/), [FMP on public sites](https://site.financialmodelingprep.com/insights/platform/can-you-use-fmp-data-in-a-public-app-website-or-client-dashboard), [Twelve Data terms](https://twelvedata.com/terms).
+
+**The three ways forward for prices:**
+1. **Public and free:** SEC data in our own design, plus TradingView widgets for everything price-based. Comes with TradingView's drawing tools. Less control over how the price chart looks.
+2. **Private and free:** put the site behind a login, use a free API (for example Finnhub) under its personal-use terms, keep our own chart. Not publicly viewable.
+3. **Public and paid:** buy a plan with display rights (Twelve Data's business plan is the cheapest found so far). Our own chart, public, with a monthly cost.
 
 ### Phase 3: News
 - [ ] Stock-specific news feed
@@ -139,7 +156,7 @@ The boxes above are a first pass. The phase is only done when Eyal signs off on 
 
 Things I don't know how to do yet. Dive into each one when its phase comes up, and move the answer to the decision log.
 
-- [ ] Which free data API allows showing data on a public site
+- [ ] Which price route to take: public with TradingView widgets, private with a free API, or public with a paid plan (research is under Phase 2)
 - [ ] How "live" updates should work (polling vs websockets) within free limits
 - [ ] How far back each kind of data goes on the source we pick. Expectation to confirm in Phase 2: years of daily prices, and reported financials (revenue, earnings) from SEC filings going back many years. P/E over time is not downloaded, it is worked out from the price history and the earnings history
 - [ ] Is OpenBB worth using as the data layer, or simpler to call APIs directly?
@@ -176,6 +193,7 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-16 | Open layout: content sits on the page, separated by space and thin lines. Glass is kept for the top bar and the chart panel. The brand gradient appears once, in the site mark | A box around everything made the page feel cramped and gave nothing priority. Glass panels plus glowing gradients everywhere is also the default look of AI-made sites, so using them sparingly makes the site look more like its own thing. Alternative was keeping the cards and only adding spacing |
 | 2026-11-17 | The two themes get different characters. Light: airy, a soft wash of color, see-through glass. Dark: a trading desk, flat neutral charcoal, no colored glow, solid panels, blue price line | Eyal liked light but found dark looked like a showcase for new technology. Navy-black with a neon green, cyan and violet glow is the look of tech product launches. Trading platforms use flat charcoal and leave color to the data. Alternative was only dimming the glow |
 | 2026-11-17 | Light is the default theme for a first visit. A visitor's own choice is still remembered | Eyal finds light the stronger of the two. Alternatives were dark as default, or following each visitor's device setting |
+| 2026-11-17 | SEC EDGAR is the source for filings and reported financials | It is the only source checked that is free, needs no key and explicitly allows reuse on a public site. Every route for prices uses it |
 | 2026-11-16 | Hosting stays on Vercel's free plan. Eyal will pay if a limit gets in the way | Removes hosting cost as a reason to compromise the design |
 
 ---
@@ -191,3 +209,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-16 (fourth session):** Eyal's feedback on the design: claustrophobic, very central, same color everywhere, still "AI looking". Light mode may be the better of the two. Built a third pass on the branch: full-width top bar holding the tabs, the stock name and price straight on the page with four headline stats beside them, wider page, boxes removed from stats, news and metrics, and a single glow at the top in place of blobs everywhere. Tested every tab in both themes at phone, laptop and wide-screen sizes. One issue found and fixed (the chart panel stretched taller than its content). Next: Eyal's verdict on the third pass. Design polish will continue as real content arrives in Phase 2.
 - **2026-11-17:** Eyal's feedback on the third pass: light mode looks great, dark mode still feels like a technology showcase and not a stock site. Reworked the dark theme only: neutral charcoal background, colored glow removed, solid raised panels, blue price line. Light theme is pixel-for-pixel unchanged (compared screenshots before and after). Tested all tabs at three screen sizes, no errors. Also logged Eyal's ask for charts of metrics over time (Phase 7) and the question of how far back the data goes (Phase 2). Next: Eyal's verdict on dark, then merging the branch.
 - **2026-11-17 (second session):** Eyal approved the reworked dark theme and asked for light as the default and for everything to be merged. Switched the default to light, tested it, then opened and merged pull request 3. The live site now has all four design passes. Next: Eyal reviews the live site and signs off on Phase 1, or asks for more changes.
+- **2026-11-17 (third session):** Started Phase 2. Researched data sources by reading each provider's own terms. Finding: SEC EDGAR is free and open for filings and financials, but none of the free price APIs checked (Finnhub, Alpha Vantage, FMP, Twelve Data) allow showing prices on a public site. TradingView's embeddable widgets do. Wrote the findings and the three ways forward into the Phase 2 section. One snag: this cloud workspace blocked the providers' sites, fixed by Eyal approving an allow-list of seven sites. No code written yet. Next: Eyal picks the price route and gives SEC contact details, then the data layer gets built.

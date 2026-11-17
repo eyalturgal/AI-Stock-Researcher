@@ -30,6 +30,7 @@ Update ROADMAP.md:
 - Reusable pieces live in `src/components`. Each tab is a page in `src/app`.
 - `src/data/sample.ts` is placeholder data for Phase 1. It gets replaced by real data in Phase 2. While any sample data is on the site, it must be labeled as sample.
 - Check work with `npm run lint` and `npm run build` before committing.
+- Claude's cloud workspace can only reach websites on its allow-list. Before using a new data source, ask Eyal to approve adding its host, then test real calls. Never fake a response from a source that could not be reached.
 
 ## Project rules
 - Never hard-code a ticker or company name. Everything comes from one config file.
