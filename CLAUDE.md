@@ -28,8 +28,12 @@ Update ROADMAP.md:
 - The themes have different characters. Light: airy, soft color wash at the top, see-through glass. Dark: a trading desk, flat neutral charcoal, no colored glow, solid panels. Do not add glows or gradients to the dark theme.
 - There are two themes, light (default) and dark. Any new color must get a value for both in `globals.css`, and every visual change must be checked in both.
 - Reusable pieces live in `src/components`. Each tab is a page in `src/app`.
-- `src/data/sample.ts` is placeholder data for Phase 1. It gets replaced by real data in Phase 2. While any sample data is on the site, it must be labeled as sample.
+- Data: `src/lib/sec.ts` fetches from the SEC (server only, cached), `src/lib/financials.ts` is the math, `src/lib/stats.ts` formats figures for display. Prices and charts come from TradingView widgets (`src/components/TradingViewWidget.tsx`). There is no price data in our own code.
+- The SEC needs the `SEC_USER_AGENT` setting (site name, a space, a contact email). Locally it lives in `.env.local`, which is never committed. On Vercel it is an Environment Variable. Never write the email in code or docs.
+- `src/data/sample.ts` now holds placeholder news only, until Phase 3. Pages that show it must say it is a placeholder.
 - Check work with `npm run lint` and `npm run build` before committing.
+- In Claude's cloud workspace, run Node commands that need the internet with `NODE_USE_ENV_PROXY=1` in front (for example `NODE_USE_ENV_PROXY=1 npm run build`). Without it the SEC cannot be reached and the build shows the failure message. This is a workspace quirk, not needed on Vercel or a normal computer.
+- TradingView's widget server refuses requests from Claude's cloud workspace, so widgets cannot be seen working there. Eyal checks them on the Vercel preview. Do not try to get around the refusal.
 - Claude's cloud workspace can only reach websites on its allow-list. Before using a new data source, ask Eyal to approve adding its host, then test real calls. Never fake a response from a source that could not be reached.
 
 ## Project rules

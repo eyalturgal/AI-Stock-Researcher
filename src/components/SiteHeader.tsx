@@ -4,8 +4,7 @@ import { TabNav } from "@/components/TabNav";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 // The bar across the top of every page. It stays in place while the page
-// scrolls. It holds the site name, the tabs, a badge that is honest about
-// the data being fake for now, and the theme switch.
+// scrolls. It holds the site name, the tabs and the theme switch.
 //
 // On a phone the tabs drop to their own row under the site name.
 export function SiteHeader() {
@@ -28,10 +27,7 @@ export function SiteHeader() {
           <TabNav />
         </div>
 
-        <div className="ml-auto flex items-center gap-3">
-          <p className="hidden rounded-full border border-line px-3 py-1 text-xs text-ink-soft sm:block">
-            Sample data. Live data is coming.
-          </p>
+        <div className="ml-auto flex items-center">
           <ThemeToggle />
         </div>
       </div>

@@ -1,28 +1,14 @@
+import { Suspense } from "react";
 import { stockConfig } from "@/config/stock";
-import { sampleHeadlineStats, sampleQuote } from "@/data/sample";
-import { formatDate, formatPrice } from "@/lib/format";
-import { ChangePill } from "@/components/ui/ChangePill";
-import { StatTile } from "@/components/ui/StatTile";
+import { HeadlineStats, HeadlineStatsLoading } from "@/components/Fundamentals";
+import { TradingViewWidget } from "@/components/TradingViewWidget";
 
-// The opening of every page: which stock this is and what it costs.
-// It sits straight on the page, with no box around it, so the first thing
-// you see is the name and the price.
+// The opening of every page: which stock this is, what it costs, and four
+// headline figures from its accounts.
+//
+// The price comes from a TradingView widget. The figures on the right come
+// from the SEC. <Suspense> shows gray placeholder bars until they arrive.
 export function StockHeader() {
-  const { currency } = stockConfig;
-
-  // The four numbers shown next to the price.
-  const headlineStats = [
-    {
-      label: "Previous close",
-      value: formatPrice(sampleQuote.previousClose, currency),
-    },
-    {
-      label: "52-week range",
-      value: `${formatPrice(sampleQuote.yearLow, currency)} to ${formatPrice(sampleQuote.yearHigh, currency)}`,
-    },
-    ...sampleHeadlineStats,
-  ];
-
   return (
     <section className="shell pb-10 pt-10 sm:pb-12 sm:pt-14">
       <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-12">
@@ -43,26 +29,18 @@ export function StockHeader() {
             {stockConfig.name}
           </h1>
 
-          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
-            <p className="text-6xl font-semibold tracking-tighter text-ink sm:text-7xl">
-              {formatPrice(sampleQuote.price, currency)}
-            </p>
-            <ChangePill
-              change={sampleQuote.change}
-              changePercent={sampleQuote.changePercent}
-            />
-          </div>
-
-          <p className="mt-3 text-sm text-ink-faint">
-            Sample data, not real prices. Close on {formatDate(sampleQuote.asOf)}.
-          </p>
+          <TradingViewWidget
+            widget="single-ticker"
+            className="mt-5 max-w-md"
+            loadingText="Loading the latest price from TradingView."
+          />
         </div>
 
-        <dl className="grid grid-cols-2 gap-x-8 gap-y-6 lg:col-span-5">
-          {headlineStats.map((stat) => (
-            <StatTile key={stat.label} stat={stat} size="small" />
-          ))}
-        </dl>
+        <div className="lg:col-span-5">
+          <Suspense fallback={<HeadlineStatsLoading />}>
+            <HeadlineStats />
+          </Suspense>
+        </div>
       </div>
     </section>
   );

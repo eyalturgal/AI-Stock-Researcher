@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 2 (Real data). Data source research is done, the choice is waiting on Eyal
-- **Next action:** Eyal: pick how prices get onto the site (see "Phase 2 research" below) and give the contact details the SEC asks automated tools to send
-- **Blocked on:** those two answers. No data code can be written or tested until both are in
+- **Current phase:** Phase 2 (Real data). Real SEC figures are built and tested. TradingView price widgets are built but could not be tested from Claude's workspace
+- **Next action:** Eyal: add the `SEC_USER_AGENT` setting in Vercel, then open the branch's preview site and say whether the price and the chart show up (steps under Phase 2)
+- **Blocked on:** Eyal checking the preview. The branch is not merged until the widgets are confirmed
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -56,12 +56,19 @@ Each phase ends with something working and visible. Don't start the next phase u
 **Done when:** the site looks finished and polished, even though the data is fake.
 
 ### Phase 2: Real data
-- [ ] Choose a market data source and confirm its terms allow display on a public site
-- [ ] Build a backend/API layer so API keys never reach the browser
-- [ ] Add caching so the site stays within free-tier limits
-- [ ] Live price chart with TradingView Lightweight Charts (timeframes, chart types)
-- [ ] Metrics tab with real data
-- [ ] Loading states and error states (what users see when an API fails)
+- [x] Choose a market data source and confirm its terms allow display on a public site (SEC EDGAR for financials, TradingView widgets for prices)
+- [x] Build a backend/API layer so API keys never reach the browser (`src/lib/sec.ts` runs on the server only, and the SEC contact details live in a private setting)
+- [x] Add caching so the site stays within free-tier limits (the SEC is asked about once an hour, and a failure is retried after a minute)
+- [ ] Live price and price chart from TradingView's widgets (built. Waiting for Eyal to confirm they appear on the preview site)
+- [x] Metrics tab with real data (reported financials from the SEC)
+- [ ] Price-based figures (market cap, P/E) from a TradingView panel, once the first widgets are confirmed working
+- [x] Loading states and error states (gray placeholder bars while loading, a plain message when the SEC or TradingView cannot be reached. Both were tested)
+
+**Eyal's steps to see it:**
+1. In Vercel, open the project, then Settings, then Environment Variables. Add one named `SEC_USER_AGENT` with the value `AI Stock Researcher` followed by a space and the contact email. Tick Production and Preview.
+2. Open the Deployments tab and redeploy the latest deployment of the branch `claude/compassionate-cerf-hngjgk` (settings only apply to new deployments).
+3. Open that preview site. Check three things: the price under the company name, the chart on Overview and on the Chart tab, and the figures on the Metrics tab.
+4. Tell Claude what shows up. If a widget is missing, the page shows a "Loading ... from TradingView" line in its place.
 
 **Done when:** the NVDA page shows real, updating data and nothing breaks when an API is slow or down.
 
@@ -193,6 +200,10 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-16 | Open layout: content sits on the page, separated by space and thin lines. Glass is kept for the top bar and the chart panel. The brand gradient appears once, in the site mark | A box around everything made the page feel cramped and gave nothing priority. Glass panels plus glowing gradients everywhere is also the default look of AI-made sites, so using them sparingly makes the site look more like its own thing. Alternative was keeping the cards and only adding spacing |
 | 2026-11-17 | The two themes get different characters. Light: airy, a soft wash of color, see-through glass. Dark: a trading desk, flat neutral charcoal, no colored glow, solid panels, blue price line | Eyal liked light but found dark looked like a showcase for new technology. Navy-black with a neon green, cyan and violet glow is the look of tech product launches. Trading platforms use flat charcoal and leave color to the data. Alternative was only dimming the glow |
 | 2026-11-17 | Light is the default theme for a first visit. A visitor's own choice is still remembered | Eyal finds light the stronger of the two. Alternatives were dark as default, or following each visitor's device setting |
+| 2026-11-17 | Prices: route 1, public and free. TradingView's widgets show the price and the chart, and our own code shows SEC figures | Keeps the site public, free and inside every provider's terms. Eyal chose it. Alternatives were a private site with a free API, or a paid plan with display rights |
+| 2026-11-17 | TradingView's newer "web component" widgets are used, not the older iframe kind | They follow the site's light and dark themes on their own and can take the site's font. TradingView recommends them |
+| 2026-11-17 | The sample chart and the Lightweight Charts library were removed | The price chart now comes from TradingView's widget. The library can come back for our own charts of SEC figures over time (Phase 7) |
+| 2026-11-17 | Quarter 4 figures are worked out as full year minus the first three quarters | Companies do not report the fourth quarter on its own. Checked against the real data: the four quarters add up exactly to the reported full year |
 | 2026-11-17 | SEC EDGAR is the source for filings and reported financials | It is the only source checked that is free, needs no key and explicitly allows reuse on a public site. Every route for prices uses it |
 | 2026-11-16 | Hosting stays on Vercel's free plan. Eyal will pay if a limit gets in the way | Removes hosting cost as a reason to compromise the design |
 
@@ -210,3 +221,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17:** Eyal's feedback on the third pass: light mode looks great, dark mode still feels like a technology showcase and not a stock site. Reworked the dark theme only: neutral charcoal background, colored glow removed, solid raised panels, blue price line. Light theme is pixel-for-pixel unchanged (compared screenshots before and after). Tested all tabs at three screen sizes, no errors. Also logged Eyal's ask for charts of metrics over time (Phase 7) and the question of how far back the data goes (Phase 2). Next: Eyal's verdict on dark, then merging the branch.
 - **2026-11-17 (second session):** Eyal approved the reworked dark theme and asked for light as the default and for everything to be merged. Switched the default to light, tested it, then opened and merged pull request 3. The live site now has all four design passes. Next: Eyal reviews the live site and signs off on Phase 1, or asks for more changes.
 - **2026-11-17 (third session):** Started Phase 2. Researched data sources by reading each provider's own terms. Finding: SEC EDGAR is free and open for filings and financials, but none of the free price APIs checked (Finnhub, Alpha Vantage, FMP, Twelve Data) allow showing prices on a public site. TradingView's embeddable widgets do. Wrote the findings and the three ways forward into the Phase 2 section. One snag: this cloud workspace blocked the providers' sites, fixed by Eyal approving an allow-list of seven sites. No code written yet. Next: Eyal picks the price route and gives SEC contact details, then the data layer gets built.
+- **2026-11-17 (fourth session):** Eyal chose route 1 and gave a contact email for the SEC. Built the SEC data layer (`src/lib/sec.ts` for fetching and caching, `src/lib/financials.ts` for the math, `src/lib/stats.ts` for display) and put real figures on the header, the Overview and the Metrics tab. Checked the math against the SEC's own full-year totals. Replaced the sample chart and sample price with TradingView widgets. Two snags: (1) TradingView's widget server refuses requests from Claude's workspace, so the widgets could not be seen working here, only their fallback message. (2) Node programs in the workspace need an extra setting to reach the internet, now noted in CLAUDE.md. Tested: real figures render in both themes on desktop and phone, and the failure message shows when the SEC is unreachable. Next: Eyal adds the Vercel setting and checks the preview.

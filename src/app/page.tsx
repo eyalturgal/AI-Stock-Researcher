@@ -1,10 +1,11 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { stockConfig } from "@/config/stock";
-import { sampleKeyStats, sampleNews, samplePrices } from "@/data/sample";
+import { sampleNews } from "@/data/sample";
 import { GlassCard, SectionHeader } from "@/components/ui/GlassCard";
-import { StatRow } from "@/components/ui/StatTile";
+import { KeyStats, KeyStatsLoading } from "@/components/Fundamentals";
 import { NewsList } from "@/components/NewsList";
-import { PriceChart } from "@/components/PriceChart";
+import { TradingViewWidget } from "@/components/TradingViewWidget";
 
 const linkStyle = "text-sm text-ink-soft underline-offset-4 hover:text-ink hover:underline";
 
@@ -23,28 +24,26 @@ export default function OverviewPage() {
               </Link>
             }
           />
-          <PriceChart
-            data={samplePrices}
-            currency={stockConfig.currency}
-            heightClass="h-72 sm:h-96"
+          <TradingViewWidget
+            widget="advanced-chart"
+            className="h-[26rem] sm:h-[30rem]"
+            loadingText="Loading the price chart from TradingView."
           />
         </GlassCard>
 
         <aside className="flex flex-col gap-12 lg:col-span-4">
           <section>
             <SectionHeader
-              title="Key stats"
+              title="Key figures"
               action={
                 <Link href="/metrics" className={linkStyle}>
                   All metrics
                 </Link>
               }
             />
-            <dl className="border-b border-line">
-              {sampleKeyStats.map((stat) => (
-                <StatRow key={stat.label} stat={stat} />
-              ))}
-            </dl>
+            <Suspense fallback={<KeyStatsLoading />}>
+              <KeyStats />
+            </Suspense>
           </section>
 
           <section>
@@ -73,6 +72,9 @@ export default function OverviewPage() {
             </Link>
           }
         />
+        <p className="-mt-2 mb-5 text-sm text-ink-faint">
+          Placeholders for now. Real news arrives in the next phase.
+        </p>
         <NewsList items={sampleNews.slice(0, 3)} layout="columns" />
       </section>
     </div>

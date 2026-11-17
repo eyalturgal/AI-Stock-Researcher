@@ -10,6 +10,11 @@ export const stockConfig = {
   shortName: "Nvidia",
   exchange: "NASDAQ",
   currency: "USD",
+  // The company's ID number at the SEC ("CIK"), always written as 10 digits.
+  // Look one up at https://www.sec.gov/search-filings/cik-lookup
+  cik: "0001045810",
+  // How TradingView names this stock: the exchange, a colon, the ticker.
+  tradingViewSymbol: "NASDAQ:NVDA",
   // The stock's field. Used for the industry news section.
   industry: "Semiconductors and AI",
   about:
