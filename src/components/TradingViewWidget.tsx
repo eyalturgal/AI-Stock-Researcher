@@ -1,22 +1,61 @@
-import { createElement } from "react";
-import Script from "next/script";
+"use client";
+// Runs in the browser: it adds TradingView's script to the page after the
+// page has loaded, and reacts when the visitor switches theme.
+
+import { useEffect, useRef, useState } from "react";
 import { stockConfig } from "@/config/stock";
 
-// Shows a ready-made widget from TradingView: a price chart or a price ticker.
+// Shows a ready-made widget from TradingView: the price chart, or a panel
+// with the current price and key figures.
 //
 // Why a widget and not our own chart: stock prices are licensed data, and
 // none of the free price sources allow showing them on a public site.
 // TradingView's widgets are free to embed, so the prices come from them.
 //
-// A widget has two parts, both from TradingView's instructions:
-// 1. a script that teaches the browser a new tag, for example
-//    <tv-advanced-chart>
-// 2. that tag, placed where the widget should appear
+// How a widget gets onto the page (this follows TradingView's own tutorial):
+// 1. We add a <script> tag that points at TradingView's widget code.
+// 2. The settings for the widget go inside that tag, written as JSON.
+// 3. TradingView's code reads the settings and draws the widget in a frame.
 //
-// The widget follows the site's light or dark theme on its own, and fills
-// whatever box it is put in. So the caller sets the size with className.
+// The settings below are the ones from TradingView's tutorial, with our
+// stock and our theme filled in.
 
-type WidgetName = "advanced-chart" | "single-ticker" | "mini-chart";
+type WidgetName = "advanced-chart" | "symbol-info";
+type Theme = "light" | "dark";
+
+function widgetSettings(widget: WidgetName, theme: Theme) {
+  const symbol = stockConfig.tradingViewSymbol;
+
+  if (widget === "advanced-chart") {
+    return {
+      autosize: true, // fill the box it is placed in
+      symbol,
+      interval: "D", // one bar per day to start with
+      timezone: "Etc/UTC",
+      theme,
+      style: "1", // candlesticks. The visitor can change it in the chart
+      locale: "en",
+      allow_symbol_change: false, // this site is about one stock
+      calendar: false,
+      support_host: "https://www.tradingview.com",
+    };
+  }
+
+  // symbol-info: the price, the day's change and key figures
+  return {
+    symbol,
+    width: "100%",
+    locale: "en",
+    colorTheme: theme,
+    isTransparent: true, // let the page's own background show through
+  };
+}
+
+function currentTheme(): Theme {
+  return document.documentElement.getAttribute("data-theme") === "dark"
+    ? "dark"
+    : "light";
+}
 
 export function TradingViewWidget({
   widget,
@@ -29,22 +68,65 @@ export function TradingViewWidget({
   // (for example when a browser extension blocks it).
   loadingText: string;
 }) {
-  const tag = `tv-${widget}`;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Put the widget on the page, using the theme that is active right now.
+    const build = () => {
+      container.innerHTML = "";
+
+      const frame = document.createElement("div");
+      frame.className = "tradingview-widget-container__widget";
+      frame.style.width = "100%";
+      frame.style.height = "100%";
+      container.appendChild(frame);
+
+      const script = document.createElement("script");
+      script.type = "text/javascript";
+      script.async = true;
+      script.src = `https://s3.tradingview.com/external-embedding/embed-widget-${widget}.js`;
+      script.innerHTML = JSON.stringify(widgetSettings(widget, currentTheme()));
+      container.appendChild(script);
+    };
+
+    // Hide the loading text once TradingView has added its frame.
+    const frameWatcher = new MutationObserver(() => {
+      if (container.querySelector("iframe")) setLoaded(true);
+    });
+    frameWatcher.observe(container, { childList: true, subtree: true });
+
+    // These widgets cannot change theme on the fly, so when the visitor
+    // switches theme, build the widget again in the new one.
+    const themeWatcher = new MutationObserver(() => {
+      setLoaded(false);
+      build();
+    });
+    themeWatcher.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
+    build();
+
+    return () => {
+      frameWatcher.disconnect();
+      themeWatcher.disconnect();
+      container.innerHTML = "";
+    };
+  }, [widget]);
+
   // The page on tradingview.com for this stock, as a way out if the widget
   // cannot load.
   const symbolPage = `https://www.tradingview.com/symbols/${stockConfig.tradingViewSymbol.replace(":", "-")}/`;
 
   return (
     <div className={className}>
-      <Script
-        type="module"
-        src={`https://www.tradingview-widget.com/w/en/${tag}.js`}
-        strategy="afterInteractive"
-      />
-      {createElement(
-        tag,
-        { symbol: stockConfig.tradingViewSymbol },
-        <p className="py-6 text-sm leading-6 text-ink-faint">
+      {loaded ? null : (
+        <p className="py-2 text-sm leading-6 text-ink-faint">
           {loadingText} If nothing appears, your browser may be blocking it.
           You can also{" "}
           <a
@@ -56,8 +138,13 @@ export function TradingViewWidget({
             open it on TradingView
           </a>
           .
-        </p>,
+        </p>
       )}
+      <div
+        ref={containerRef}
+        className="tradingview-widget-container"
+        style={{ width: "100%", height: "100%" }}
+      />
     </div>
   );
 }
