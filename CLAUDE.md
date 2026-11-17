@@ -26,6 +26,7 @@ Update ROADMAP.md:
 - Before writing Next.js code, follow AGENTS.md: this Next.js version is newer than most examples online, so read the matching guide in `node_modules/next/dist/docs/` first.
 - Site-wide settings live in `src/config/site.ts`. The tracked stock lives in `src/config/stock.ts`, and that is the only file allowed to name a ticker or company.
 - Design tokens (colors, the `glass` and `glass-button` styles) live in `src/app/globals.css`. Components use the token names, never raw color codes.
+- Write each CSS setting once, with no hand-written `-webkit-` copy: the CSS build adds browser prefixes itself, and a hand-written copy can replace the standard one (this once switched off the top bar's blur in Chrome).
 - Layout rule: content sits straight on the page, separated by space and thin lines. Glass is only for things that float above the page (the top bar, the chart panel). Do not put a box around everything. Page sections use the `shell` class so their edges line up.
 - The themes have different characters. Light: airy, soft color wash at the top, see-through glass. Dark: a trading desk, flat neutral charcoal, no colored glow, solid panels. Do not add glows or gradients to the dark theme.
 - There are two themes, light (default) and dark. Any new color must get a value for both in `globals.css`, and every visual change must be checked in both.
@@ -41,6 +42,7 @@ Update ROADMAP.md:
 - In Claude's cloud workspace, run Node commands that need the internet with `NODE_USE_ENV_PROXY=1` in front (for example `NODE_USE_ENV_PROXY=1 npm run build`). Without it the SEC cannot be reached and the build shows the failure message. This is a workspace quirk, not needed on Vercel or a normal computer.
 - TradingView widgets use the script-embed format from TradingView's own tutorial (scripts on `s3.tradingview.com`, settings as JSON inside the script tag). Take settings from their docs at `https://www.tradingview.com/widget-docs/` (add `.md` to a page address for a plain-text copy). Do not guess widget names or addresses.
 - TradingView widgets load fully in Claude's cloud workspace (their sites are on the allow-list). Give them about 10 seconds before taking a screenshot. Always check them in the dark theme too. Widgets below the visible part of the page can look blank in a full-page screenshot: scroll them into view and take a normal screenshot before calling it a bug.
+- Claude's cloud workspace can open the live site, https://ai-stock-researcher-ten.vercel.app/. Check each deployment there after merging. The workspace's test browser draws blur poorly (a faint sharp copy of the text stays behind it), so check a blur by its computed style and leave the final look to a real browser.
 - Claude's cloud workspace can only reach websites on its allow-list. Before using a new data source, ask Eyal to approve adding its host, then test real calls. Never fake a response from a source that could not be reached.
 
 ## Project rules
