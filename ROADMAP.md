@@ -120,10 +120,13 @@ Every item also gets a **topic** (earnings, product, leadership, legal, deals, a
 - [ ] 3.11 News sub-tabs (Eyal's request): each section opens into its own page with more items (Filings, Announcements, Industry, Coverage), reached from a row of sub-tabs under the main tabs
 
 **Eyal's steps for 3.9:**
-1. In Vercel, open the project and find Neon Postgres (the Storage tab, or the Marketplace under Native Integrations). Neon's guide recommends this "Vercel-Managed" route for anyone new to Neon.
-2. Create a database on the Free plan, in a US East region (near where Vercel runs the site by default).
-3. Connect it to this project for Production, Preview and Development. Vercel then adds the connection settings to the project on its own.
-4. Do not send the password or connection string to Claude. Claude tests against a local copy of Postgres in its workspace, and the live site gets the settings from Vercel.
+1. In Vercel, add a database and pick Neon (Neon's guide calls this the "Vercel-Managed" route and recommends it for anyone new to Neon). If asked, choose Create New Neon Account.
+2. Region: Washington, D.C. / US East, where Vercel runs the site by default.
+3. Auth: off. It adds user logins, and the site has no accounts.
+4. Realtime: off. It pushes database changes to open pages instantly, and nothing here needs that. Neon only allows turning it on when a database is created.
+5. Plan: Free. Name: ai-stock-researcher.
+6. Then Storage, the new database, Connect Project: pick this project and tick Development, Preview and Production. Under "Create database branch for deployment", tick Preview only, so test versions of the site get their own copy of the database and cannot break the live one. Leave the custom prefix empty. Vercel then adds the connection settings (DATABASE_URL and others) to the project on its own.
+7. Do not send the password or connection string to Claude. Claude tests against a local copy of Postgres in its workspace, and the live site gets the settings from Vercel.
 
 **Done when:** the news tab is useful enough that I'd actually check it.
 
