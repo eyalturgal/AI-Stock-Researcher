@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 2 (Real data). Real SEC figures are built and tested. TradingView price widgets are built but could not be tested from Claude's workspace
-- **Next action:** Eyal: add the `SEC_USER_AGENT` setting in Vercel, then open the branch's preview site and say whether the price and the chart show up (steps under Phase 2)
-- **Blocked on:** Eyal checking the preview. The branch is not merged until the widgets are confirmed
+- **Current phase:** Phase 2 (Real data). Everything built so far is merged to `main` and live, at Eyal's request
+- **Next action:** Eyal: open the live site and say what shows up in three places: the price under the company name, the chart, and the figures on the Metrics tab
+- **Blocked on:** that check. The TradingView widgets have still never been seen working, and the SEC figures depend on the `SEC_USER_AGENT` setting Eyal added in Vercel
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -222,3 +222,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17 (second session):** Eyal approved the reworked dark theme and asked for light as the default and for everything to be merged. Switched the default to light, tested it, then opened and merged pull request 3. The live site now has all four design passes. Next: Eyal reviews the live site and signs off on Phase 1, or asks for more changes.
 - **2026-11-17 (third session):** Started Phase 2. Researched data sources by reading each provider's own terms. Finding: SEC EDGAR is free and open for filings and financials, but none of the free price APIs checked (Finnhub, Alpha Vantage, FMP, Twelve Data) allow showing prices on a public site. TradingView's embeddable widgets do. Wrote the findings and the three ways forward into the Phase 2 section. One snag: this cloud workspace blocked the providers' sites, fixed by Eyal approving an allow-list of seven sites. No code written yet. Next: Eyal picks the price route and gives SEC contact details, then the data layer gets built.
 - **2026-11-17 (fourth session):** Eyal chose route 1 and gave a contact email for the SEC. Built the SEC data layer (`src/lib/sec.ts` for fetching and caching, `src/lib/financials.ts` for the math, `src/lib/stats.ts` for display) and put real figures on the header, the Overview and the Metrics tab. Checked the math against the SEC's own full-year totals. Replaced the sample chart and sample price with TradingView widgets. Two snags: (1) TradingView's widget server refuses requests from Claude's workspace, so the widgets could not be seen working here, only their fallback message. (2) Node programs in the workspace need an extra setting to reach the internet, now noted in CLAUDE.md. Tested: real figures render in both themes on desktop and phone, and the failure message shows when the SEC is unreachable. Next: Eyal adds the Vercel setting and checks the preview.
+- **2026-11-17 (fifth session):** Eyal added the `SEC_USER_AGENT` setting in Vercel but was unsure about some of the choices there, saw no change on the site (the work was still on the branch), and asked for everything to be merged so it is saved and visible. Merged pull request 4. The widgets go live unverified, with their fallback text as the safety net. Next: Eyal reports what the live site shows, and anything missing gets fixed from there.
