@@ -7,8 +7,8 @@ This file is the source of truth for where the project stands. Update it at the 
 ## Current status
 
 - **Current phase:** Phase 3 (News), extended with three sub-steps Eyal asked for: the database (3.9), friendly titles (3.10) and news sub-tabs (3.11)
-- **Next action:** Eyal: check the live site, then create the Neon database from Vercel (steps under 3.9) and tell Claude when it is done
-- **Blocked on:** the database, which needs Eyal's Vercel account
+- **Next action:** Claude: build 3.9 on the database (created and connected by Eyal on 2026-11-17). Eyal: optionally switch the database settings to Secret (see Phase 4)
+- **Blocked on:** nothing
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -165,6 +165,7 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 
 ### Phase 4: Production hardening and v1 launch
 - [ ] Security pass: secrets in environment variables, rate limiting, input validation, HTTPS, dependency scanning
+- [ ] Database settings as Secret in Vercel. The Neon connection created them as "Config" (readable again in the dashboard by anyone with access to the project). Vercel does not allow switching integration variables to Secret in the list. Its documented route: disconnect the database from the project, optionally reset the database password in Neon, reconnect with Development unticked and "Sensitive" turned on in the advanced options, then redeploy
 - [ ] Trim Claude's workspace allow-list: remove sites that were only needed for research or were ruled out (Alpha Vantage, Finnhub, Twelve Data, FMP, Marketaux, NYT, the Guardian, Google News)
 - [ ] Basic monitoring/error alerts
 - [ ] Privacy-friendly analytics (optional)
