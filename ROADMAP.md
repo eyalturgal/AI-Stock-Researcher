@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 3 (News). Every sub-step is built, including the three Eyal added (database, friendly titles, news sub-tabs). Phase 3 is done when Eyal finds the News tab useful enough to actually check it
-- **Next action:** Eyal: look through the News tab and its sub-tabs on the live site and give the Phase 3 verdict. Then Claude: Phase 4, starting with the security pass
-- **Blocked on:** Eyal's Phase 3 verdict
+- **Current phase:** Phase 4 (Production hardening and v1 launch). Phase 3 is closed: Eyal finds the News tab "incredibly useful" and keeps using it for a few days to confirm
+- **Next action:** Claude: start Phase 4 with the security pass, on Eyal's go
+- **Blocked on:** nothing
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -20,7 +20,7 @@ This file is the source of truth for where the project stands. Update it at the 
 - [x] Hello world page built, merged to `main` and deployed on Vercel
 - [x] Phase 1 first pass: design system, four tabs, stock config, sample data
 - [x] Phase 2: real figures from the SEC, with TradingView's price panel and chart
-- [x] Phase 3 built: the News tab with filings, company announcements, industry news and media coverage, in sub-tabs, with a database behind it (waiting on Eyal's verdict)
+- [x] Phase 3: the News tab with filings, company announcements, industry news and media coverage, in sub-tabs, with a database behind it. Eyal's verdict: "incredibly useful" (2026-11-17)
 
 ---
 
@@ -130,7 +130,7 @@ Every item also gets a **topic** (earnings, product, leadership, legal, deals, a
 6. Then Storage, the new database, Connect Project: pick this project and tick Development, Preview and Production. Under "Create database branch for deployment", tick Preview only, so test versions of the site get their own copy of the database and cannot break the live one. Leave the custom prefix empty. Vercel then adds the connection settings (DATABASE_URL and others) to the project on its own.
 7. Do not send the password or connection string to Claude. Claude tests against a local copy of Postgres in its workspace, and the live site gets the settings from Vercel.
 
-**Done when:** the news tab is useful enough that I'd actually check it.
+**Done when:** the news tab is useful enough that I'd actually check it. Met (Eyal, 2026-11-17: "incredibly useful". He keeps using it for a few days, and anything missing goes back on the list).
 
 **Peer companies (2026-11-17).** The industry section follows NVIDIA's rivals and supply chain. All of them file with the SEC, so they cost nothing to follow.
 
@@ -168,7 +168,7 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 ### Phase 4: Production hardening and v1 launch
 - [ ] Security pass: secrets in environment variables, rate limiting, input validation, HTTPS, dependency scanning
 - [x] Database settings as Secret in Vercel (done by Eyal, 2026-11-17). The Neon connection created them as "Config" (readable again in the dashboard by anyone with access to the project). Vercel does not allow switching integration variables to Secret in the list. Its documented route: disconnect the database from the project, optionally reset the database password in Neon, reconnect with Development unticked and "Sensitive" turned on in the advanced options, then redeploy
-- [ ] Trim Claude's workspace allow-list: remove sites that were only needed for research or were ruled out (Alpha Vantage, Finnhub, Twelve Data, FMP, Marketaux, NYT, the Guardian, Google News)
+- [ ] Trim Claude's workspace allow-list: remove sites that were only needed for research or were ruled out (Alpha Vantage, Finnhub, Twelve Data, FMP, Marketaux, NYT, the Guardian, Google News). Keep the live site, added 2026-11-17 so Claude can check each deployment
 - [ ] Basic monitoring/error alerts
 - [ ] Privacy-friendly analytics (optional)
 - [ ] Buy and connect the project's domain (name still undecided)
@@ -201,9 +201,10 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 - [ ] Earnings tab: history, upcoming dates, surprises
 - [ ] Financials tab: income statement, balance sheet, cash flow, key ratios
 - [ ] Metrics over time (Eyal's request): charts showing how revenue, earnings, margins and P/E have moved across quarters and years
-- [ ] Filings tab: SEC filings (10-K, 10-Q, 8-K), linked and organized
+- [ ] Filings tab: SEC filings (10-K, 10-Q, 8-K), linked and organized. Partly covered since 3.11 by News > Filings (the last 40 filings)
 - [ ] Technicals: indicators on the chart and a summary section
 - [ ] Full chart workspace (Eyal's request): its own full-screen view with drawing tools, chart types, more timeframes and on-canvas options, in the style of TradingView or a broker platform
+- [ ] App-style layout (Eyal's idea, 2026-11-17): the site still feels like it floats in empty space. Divide the screen into regions with lines that run edge to edge, the way Vercel, GitHub, YouTube and TradingView's Supercharts do (a sidebar, a main area, a side panel), so every piece sits in its own area. Lines between regions, not boxes around everything, which felt claustrophobic in Phase 1. Best done once there is content to fill the regions, such as the chatbot (Phase 6) and the list of stocks (Phase 9)
 - [ ] Auto-updating "buzzwords" per company for news filtering
 - [ ] Partners and investments (Eyal's idea, 2026-11-17): the companies NVIDIA invests in and partners with, recent and big ones first. Sources found: its quarterly holdings report to the SEC (form 13F: on Sep 30, 2026 it held shares in 8 public companies worth $48.3B, led by Space Exploration Technologies, Intel and CoreWeave), deal filings (agreements and acquisitions), and partnership announcements in the newsroom. Private stakes only show up in announcements. Can move before the launch if Eyal wants it in v1
 
@@ -302,6 +303,9 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-17 | Title cleanup rules run when a title is shown, not when it is stored | Stored titles stay exactly as the company wrote them, and a better rule fixes every title at once. What rules cannot fix waits for the AI step in Phase 5 |
 | 2026-11-17 | News sub-tabs are pages under `/news` with one shared layout: All news, Filings, Announcements, Industry, Coverage. "All news" shows each section short with a "More…" link, and each sub-page shows it in full | Eyal's request: open up each section without making the News page longer. The list of sub-tabs lives in the site config |
 | 2026-11-17 | Each news source is fetched as one fixed-size list (40 filings, 30 industry filings, 50 announcements), and every page shows the newest few of it | New pages add no requests to the SEC or the newsroom |
+| 2026-11-17 | Phase 3 closed | Eyal's verdict: the News tab is "incredibly useful". He keeps using it for a few days, and anything missing goes back on the list |
+| 2026-11-17 | Top bar: the blur fixed, and its color made more solid (light 85%, dark 92%) | Eyal found text under the bar hard to read. The blur never worked in Chrome, Edge or Firefox: the CSS build kept only Safari's copy of the setting. The more solid color keeps text readable even where a browser draws blur poorly |
+| 2026-11-17 | The live site is on Claude's workspace allow-list | Claude can check each deployment after a merge |
 | 2026-11-17 | SEC requests wait in a queue, each leaving 125 ms after the one before | Measured on a test build: the old time-slot method let two requests leave 61 ms apart when the program was busy. The queue measured 125 ms at the least and 8 a second at most |
 
 ---
@@ -330,3 +334,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17 (thirteenth session):** Eyal created the Neon database in Vercel, connected it for Preview and Production, and switched its settings to Secret. Built 3.9 with Drizzle: two tables (filing details and newsroom items), a first migration written as plain SQL, table changes applied at the start of each build, and reads and writes that fall back to the live sources on any failure. Measured SEC requests per build: 46 with an empty database, 9 after. Tested a build with no database setting and one with the database stopped: both built the full site. Merged pull request 11. Next: 3.10, friendly titles.
 - **2026-11-17 (fourteenth session):** Eyal confirmed the live build reports "Database tables are up to date", so the live site uses the Neon database. Built 3.10, friendly titles. When a filing carries a press release, the release's title is now the headline ("NVIDIA Announces CEO Transition"), with our plain-language label under it. New cleanup rules: titles written all in capitals become normal case (keeping short forms like AI and company names from the stock config like AMD), legal tails are cut, long financial statement titles are shortened, and a repeated date at the end is dropped. Tested the rules on every title in the database plus made-up edge cases. One bug found and fixed on the way: a date was being cut from the financial statement titles. Checked both themes. SEC requests per build stay at 9. Also removed the price route question from the open list, since it was decided earlier. Merged pull request 12. Next: 3.11, news sub-tabs.
 - **2026-11-17 (fifteenth session):** Eyal shared the live address, now in Phase 0. Built 3.11, news sub-tabs: All news (a short version of every section, each with a "More…" link), Filings (40, back to May 2024), Announcements (every saved newsroom item), Industry (30) and Coverage (taller news boxes). The sub-tabs are listed in the site config and shown by a News layout, so the row stays in place between sub-pages. The main News tab stays marked on them, and on a phone the row scrolls to show the open sub-tab. Each source is now fetched as one list that every page takes the newest few from, so new pages add no requests. The build that read the extra filings got one "503" (busy) answer from the SEC, which the fallback handled. Measuring the rate behind it showed the old pacing could let two requests leave 61 ms apart when the program was busy (a peak of 9 in one second, under the limit of 10). Replaced it with a queue, remeasured at no gap under 125 ms and at most 8 a second. Builds are back to 9 SEC requests once filings are saved. Checked every page on desktop and phone in both themes. Claude's workspace cannot open the live site, so live checks stay with Eyal. Merged pull request 13. Next: Eyal's verdict on Phase 3, then Phase 4.
+- **2026-11-17 (sixteenth session):** Eyal gave the Phase 3 verdict: the News tab is "incredibly useful" (he keeps using it for a few days), so Phase 3 is closed. He approved adding the live site to Claude's workspace allow-list, and Claude confirmed 3.11 is live. He shared a layout idea for later, logged in Phase 7: an app-style layout divided into regions, like Vercel, GitHub and TradingView. He also reported that text under the top bar is hard to read. Cause: the bar's blur never worked in Chrome, Edge or Firefox, because the CSS build kept only Safari's copy of the setting. Fixed it for the bar and the glass panels, and made the bar's color more solid (light 85%, dark 92%). Checked both themes at rest and with text under the bar. This workspace's test browser draws blur poorly, so the final look is for Eyal to judge in a real browser. Merged pull request 14. Next: Phase 4, starting with the security pass.
