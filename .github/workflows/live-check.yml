@@ -1,0 +1,50 @@
+# Checks the live site every three hours, and when started by hand from the
+# Actions tab on GitHub. If the check fails, it opens an issue (or adds to
+# the one already open), and GitHub emails Eyal about it.
+#
+# GitHub turns scheduled checks off after 60 days without any activity in
+# the repository. The Actions tab has a button to turn this one back on.
+
+name: Live site check
+
+on:
+  schedule:
+    # Minute 17 of every third hour, in UTC. Not minute 0, when GitHub is
+    # busiest and runs can start late.
+    - cron: "17 */3 * * *"
+  workflow_dispatch:
+
+# The check may only read the code and write issues. Nothing else.
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SITE: https://ai-stock-researcher-ten.vercel.app
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check the live site
+        shell: bash
+        run: bash scripts/check-live.sh "$SITE" | tee check-result.txt
+
+      - name: Open an issue about the failure
+        if: failure()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Live site check failed"
+          body=$(printf 'The check of %s found problems:\n\n```\n%s\n```\n\nDetails: %s\n' "$SITE" "$(cat check-result.txt)" "$RUN_URL")
+          open=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$open" ]; then
+            gh issue comment "$open" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi

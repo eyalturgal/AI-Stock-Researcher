@@ -39,6 +39,7 @@ Update ROADMAP.md:
 - The SEC needs the `SEC_USER_AGENT` setting (site name, a space, a contact email). Locally it lives in `.env.local`, which is never committed. On Vercel it is an Environment Variable. Never write the email in code or docs.
 - No placeholder data is left on the site. Anything shown before its real source exists must be labeled as a placeholder.
 - Check work with `npm run lint` and `npm run build` before committing.
+- GitHub checks the live site every three hours (`.github/workflows/live-check.yml` runs `scripts/check-live.sh`): every page answers, sends its security headers and shows real data. When the check fails it opens a "Live site check failed" issue, which emails Eyal. A new page goes in that script's page list.
 - Security headers and the Content Security Policy live in `next.config.ts`. A new outside script, frame or connection must be added to the policy there, then every page checked in both themes for anything blocked.
 - In Claude's cloud workspace, run Node commands that need the internet with `NODE_USE_ENV_PROXY=1` in front (for example `NODE_USE_ENV_PROXY=1 npm run build`). Without it the SEC cannot be reached and the build shows the failure message. This is a workspace quirk, not needed on Vercel or a normal computer.
 - TradingView widgets use the script-embed format from TradingView's own tutorial (scripts on `s3.tradingview.com`, settings as JSON inside the script tag). Take settings from their docs at `https://www.tradingview.com/widget-docs/` (add `.md` to a page address for a plain-text copy). Do not guess widget names or addresses.
@@ -53,4 +54,5 @@ Update ROADMAP.md:
 - Outside data is shown as text, never as HTML. Links taken from outside data must be ordinary web links (see `webAddress` in `src/lib/feed.ts`).
 - Check data source terms allow public display, and credit sources on the site. Use the `check-data-source` skill (`.claude/skills/check-data-source/SKILL.md`) for every new source.
 - AI-written research is a research aid, not financial advice. It must show its sources, carry a "not financial advice" note, and never tell anyone to buy or sell.
+- Run the `security-and-error-check` skill after a heavy phase (5 and 6), at the Nvidia checkpoint (end of Phase 7), after Phase 9, before any launch and at the very end (Eyal's rule, 2026-11-17). The roadmap lists each one as a task.
 - When I repeat a process that will be needed again (e.g. setting up a stock), suggest saving it as a reusable skill, command, subagent or script.
