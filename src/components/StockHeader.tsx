@@ -1,54 +1,68 @@
 import { stockConfig } from "@/config/stock";
-import { sampleQuote } from "@/data/sample";
+import { sampleHeadlineStats, sampleQuote } from "@/data/sample";
 import { formatDate, formatPrice } from "@/lib/format";
 import { ChangePill } from "@/components/ui/ChangePill";
+import { StatTile } from "@/components/ui/StatTile";
 
-// The big panel that says which stock this is and what it costs.
-// It sits above the tabs on every page.
+// The opening of every page: which stock this is and what it costs.
+// It sits straight on the page, with no box around it, so the first thing
+// you see is the name and the price.
 export function StockHeader() {
-  return (
-    <section className="glass rounded-3xl p-5 sm:p-7">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex items-center gap-4">
-          {/* A plain tile with the ticker, in place of a company logo. */}
-          <div
-            aria-hidden="true"
-            className="glass flex size-14 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold tracking-wide text-ink"
-          >
-            {stockConfig.ticker}
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-              {stockConfig.name}
-            </h1>
-            <p className="mt-1 text-sm text-ink-soft">
-              {stockConfig.ticker}
-              <span className="mx-2 text-ink-faint" aria-hidden="true">
-                ·
-              </span>
-              {stockConfig.exchange}
-              <span className="mx-2 text-ink-faint" aria-hidden="true">
-                ·
-              </span>
-              {stockConfig.industry}
-            </p>
-          </div>
-        </div>
+  const { currency } = stockConfig;
 
-        <div className="sm:text-right">
-          <div className="flex flex-wrap items-center gap-3 sm:justify-end">
-            <p className="text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
-              {formatPrice(sampleQuote.price, stockConfig.currency)}
+  // The four numbers shown next to the price.
+  const headlineStats = [
+    {
+      label: "Previous close",
+      value: formatPrice(sampleQuote.previousClose, currency),
+    },
+    {
+      label: "52-week range",
+      value: `${formatPrice(sampleQuote.yearLow, currency)} to ${formatPrice(sampleQuote.yearHigh, currency)}`,
+    },
+    ...sampleHeadlineStats,
+  ];
+
+  return (
+    <section className="shell pb-10 pt-10 sm:pb-12 sm:pt-14">
+      <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-12">
+        <div className="lg:col-span-7">
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-ink-soft">
+            {/* The ticker, in a small gold tag. */}
+            <span className="rounded-md border border-gold/40 bg-gold/15 px-2 py-0.5 text-xs font-semibold tracking-wide text-ink">
+              {stockConfig.ticker}
+            </span>
+            <span>{stockConfig.exchange}</span>
+            <span className="text-ink-faint" aria-hidden="true">
+              ·
+            </span>
+            <span>{stockConfig.industry}</span>
+          </p>
+
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+            {stockConfig.name}
+          </h1>
+
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+            <p className="text-6xl font-semibold tracking-tighter text-ink sm:text-7xl">
+              {formatPrice(sampleQuote.price, currency)}
             </p>
             <ChangePill
               change={sampleQuote.change}
               changePercent={sampleQuote.changePercent}
             />
           </div>
-          <p className="mt-2 text-xs text-ink-faint">
-            Sample close on {formatDate(sampleQuote.asOf)}
+
+          <p className="mt-3 text-sm text-ink-faint">
+            Sample data, not real prices. Close on {formatDate(sampleQuote.asOf)}.
           </p>
         </div>
+
+        <dl className="grid grid-cols-2 gap-x-8 gap-y-6 lg:col-span-5">
+          {headlineStats.map((stat) => (
+            <StatTile key={stat.label} stat={stat} size="small" />
+          ))}
+        </dl>
       </div>
     </section>
   );

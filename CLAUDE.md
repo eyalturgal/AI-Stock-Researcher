@@ -24,6 +24,9 @@ Update ROADMAP.md:
 - Before writing Next.js code, follow AGENTS.md: this Next.js version is newer than most examples online, so read the matching guide in `node_modules/next/dist/docs/` first.
 - Site-wide settings live in `src/config/site.ts`. The tracked stock lives in `src/config/stock.ts`, and that is the only file allowed to name a ticker or company.
 - Design tokens (colors, the `glass` and `glass-button` styles) live in `src/app/globals.css`. Components use the token names, never raw color codes.
+- Layout rule: content sits straight on the page, separated by space and thin lines. Glass is only for things that float above the page (the top bar, the chart panel). Do not put a box around everything. Page sections use the `shell` class so their edges line up.
+- The themes have different characters. Light: airy, soft color wash at the top, see-through glass. Dark: a trading desk, flat neutral charcoal, no colored glow, solid panels. Do not add glows or gradients to the dark theme.
+- There are two themes, light (default) and dark. Any new color must get a value for both in `globals.css`, and every visual change must be checked in both.
 - Reusable pieces live in `src/components`. Each tab is a page in `src/app`.
 - `src/data/sample.ts` is placeholder data for Phase 1. It gets replaced by real data in Phase 2. While any sample data is on the site, it must be labeled as sample.
 - Check work with `npm run lint` and `npm run build` before committing.

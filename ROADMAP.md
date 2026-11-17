@@ -6,10 +6,10 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 1 (Static design). First pass is built and waiting for Eyal's review
-- **Next action:** Eyal: look at the new design (Vercel preview of the branch, or after merging), say what to change, and paste the live site URL into the Phase 0 section
-- **Blocked on:** nothing. Design feedback is the next input
-- **Last updated:** 2026-11-16
+- **Current phase:** Phase 1 (Static design). All four design passes are merged to `main` and live
+- **Next action:** Eyal: look at the live site, send the live URL, and either ask for more design changes or sign off on Phase 1 so Phase 2 (real data) can start
+- **Blocked on:** nothing. Eyal's review is the next input
+- **Last updated:** 2026-11-17
 
 ### Done so far
 - [x] Personal site (eyalturgal.com) basically finished
@@ -47,6 +47,10 @@ Each phase ends with something working and visible. Don't start the next phase u
 - [x] Tabs scaffolded: Overview, Chart, Metrics, News (others added later)
 - [x] Works well on phone and desktop (checked at 390px and 1280px wide)
 - [x] Ticker, company name and keywords come from ONE config file (`src/config/stock.ts`)
+- [x] Light and dark themes with a switch (Eyal's request). Light is the default, and the choice is remembered
+- [x] Richer palette (Eyal's request): emerald and gold for "markets and money", cyan and violet for "AI and futuristic"
+- [x] Open layout (Eyal's feedback: the design felt claustrophobic, too central and too "AI looking"): wide page, tabs in a top bar, name and price straight on the page, glass kept for the top bar and the chart only
+- [x] Dark theme reworked (Eyal's feedback: light looks great, dark looked like a tech product demo, not a stock site): flat charcoal, no colored glow, solid panels, blue price line
 - [ ] Eyal reviews the design and asks for changes until it feels right
 
 **Done when:** the site looks finished and polished, even though the data is fake.
@@ -103,9 +107,10 @@ The boxes above are a first pass. The phase is only done when Eyal signs off on 
 - [ ] Analyst tab: ratings, price targets, consensus (no republishing of full reports)
 - [ ] Earnings tab: history, upcoming dates, surprises
 - [ ] Financials tab: income statement, balance sheet, cash flow, key ratios
+- [ ] Metrics over time (Eyal's request): charts showing how revenue, earnings, margins and P/E have moved across quarters and years
 - [ ] Filings tab: SEC filings (10-K, 10-Q, 8-K), linked and organized
 - [ ] Technicals: indicators on the chart and a summary section
-- [ ] More chart tools (drawing)
+- [ ] Full chart workspace (Eyal's request): its own full-screen view with drawing tools, chart types, more timeframes and on-canvas options, in the style of TradingView or a broker platform
 - [ ] Auto-updating "buzzwords" per company for news filtering
 
 **Done when:** Stage 1 matches the full vision in PROJECT_BRIEF.md.
@@ -136,14 +141,16 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 
 - [ ] Which free data API allows showing data on a public site
 - [ ] How "live" updates should work (polling vs websockets) within free limits
+- [ ] How far back each kind of data goes on the source we pick. Expectation to confirm in Phase 2: years of daily prices, and reported financials (revenue, earnings) from SEC filings going back many years. P/E over time is not downloaded, it is worked out from the price history and the earnings history
 - [ ] Is OpenBB worth using as the data layer, or simpler to call APIs directly?
 - [ ] Which AI model/provider for research and the chatbot, and how to cap costs
-- [ ] How scheduled jobs/agents run in production. Leaning GitHub Actions: Vercel's free plan only runs scheduled jobs once a day
-- [ ] If the site ever takes donations, ads or payments, Vercel's free plan no longer applies (it is non-commercial only). Revisit hosting then
+- [ ] How scheduled jobs/agents run in production. Leaning GitHub Actions: Vercel's free plan only runs scheduled jobs once a day. Eyal is fine paying for Vercel if that turns out simpler
+- [ ] Public or private site: if the best data source only allows personal use, one option is to put the site behind a login while building. Decide per data source in Phase 2
+- [ ] Which open source data projects to build on: OpenBB and Fincept Terminal (the "open source Bloomberg terminal" projects) get evaluated in Phase 2
+- [ ] How to build the full chart workspace: Lightweight Charts has no drawing tools built in. Options to research: TradingView's larger Advanced Charts library (free but needs their approval), TradingView's embeddable widget, or community plugins
 - [ ] How to package workflows as Claude Code skills, commands or subagents
 - [ ] Project name and domain
-- [ ] Company logo: logos are trademarks, so check the rules before showing one. For now the site shows a plain tile with the ticker
-- [ ] Light theme: the site is dark only for now. Decide later if a light version is wanted
+- [ ] Company logos (Eyal wants them, like other finance sites have): research how those sites get them. Likely a logo service with terms that allow display, or the company's own brand guidelines. For now the site shows a plain tile with the ticker
 - [ ] Check the exact credit wording TradingView asks for (the NOTICE file in their GitHub repo) before the v1 launch
 
 ---
@@ -163,7 +170,13 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-16 | Each tab is its own page with its own address (`/`, `/chart`, `/metrics`, `/news`) | Tabs can be linked and shared, each one is a single small file, and it fits a future per-stock address. Alternative was one page that swaps content with JavaScript |
 | 2026-11-16 | Chart library (TradingView Lightweight Charts) added in Phase 1, fed with sample data | The design is judged with the real chart, and Phase 2 only has to swap the data. Alternative was a throwaway hand-drawn placeholder |
 | 2026-11-16 | Sample data is labeled on every page, and sample news uses obvious placeholder headlines | The site is public. Realistic fake prices or fake news about a real company could mislead someone |
-| 2026-11-16 | Dark theme only. Blue for the price line. Green and red are reserved for "up" and "down", always with an arrow and a sign | Keeps color meaningful, and readable for color-blind visitors |
+| 2026-11-16 | Green and red are reserved for "up" and "down", always with an arrow and a sign | Keeps color meaningful, and readable for color-blind visitors |
+| 2026-11-16 | Two themes, dark and light, switched by a `data-theme` attribute on the page plus CSS variables | Every color already lived in one file, so a second theme is just a second set of values. Used the method from the Next.js docs. Alternative was the `next-themes` library, skipped because it has not been updated since early 2025 and the built-in way is about ten lines |
+| 2026-11-16 | Palette: emerald, cyan and violet gradient as the signature, gold as a small highlight, cyan for the price line | Eyal asked for "AI and futuristic" mixed with "stocks and money". The price line stays away from green and red so it never reads as "up" or "down" |
+| 2026-11-16 | Open layout: content sits on the page, separated by space and thin lines. Glass is kept for the top bar and the chart panel. The brand gradient appears once, in the site mark | A box around everything made the page feel cramped and gave nothing priority. Glass panels plus glowing gradients everywhere is also the default look of AI-made sites, so using them sparingly makes the site look more like its own thing. Alternative was keeping the cards and only adding spacing |
+| 2026-11-17 | The two themes get different characters. Light: airy, a soft wash of color, see-through glass. Dark: a trading desk, flat neutral charcoal, no colored glow, solid panels, blue price line | Eyal liked light but found dark looked like a showcase for new technology. Navy-black with a neon green, cyan and violet glow is the look of tech product launches. Trading platforms use flat charcoal and leave color to the data. Alternative was only dimming the glow |
+| 2026-11-17 | Light is the default theme for a first visit. A visitor's own choice is still remembered | Eyal finds light the stronger of the two. Alternatives were dark as default, or following each visitor's device setting |
+| 2026-11-16 | Hosting stays on Vercel's free plan. Eyal will pay if a limit gets in the way | Removes hosting cost as a reason to compromise the design |
 
 ---
 
@@ -174,3 +187,7 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-15:** Defined the project, wrote PROJECT_BRIEF.md and ROADMAP.md.
 - **2026-11-16:** Started Phase 0. Renamed the project to AI Stock Researcher and widened the brief (financials, filings, technicals, research papers, "not financial advice" rule). Chose Next.js + Tailwind on Vercel. Built and tested a hello world page on the branch `claude/compassionate-cerf-hngjgk`. Nothing broke. Next: Eyal merges to `main` and connects Vercel, then Phase 1 (static design).
 - **2026-11-16 (second session):** Eyal merged the first pull request and deployed on Vercel, closing Phase 0 apart from recording the live URL. Built the Phase 1 first pass: design tokens and liquid glass styles in `globals.css`, reusable components, four tab pages, `src/config/stock.ts` as the single stock config, and labeled sample data. Tested every tab on desktop and phone sizes, plus the chart's range buttons, hover readout and data table. One bug found and fixed (a sample headline printed "ai" in lowercase). Next: Eyal's design feedback, then Phase 2 (real data).
+- **2026-11-16 (third session):** At Eyal's request, opened and merged pull request 2, so the first pass is on `main`. Eyal's feedback: likes the glass and the dark look, finds the colors bland, wants a light and dark switch, and wants a much fuller chart later. Built the second pass on the branch: new palette, light theme, theme switch, and the chart now repaints when the theme changes. Tested both themes on desktop and phone sizes, including that the choice survives a reload. Nothing broke. Next: Eyal reviews the live site and decides on merging the second pass.
+- **2026-11-16 (fourth session):** Eyal's feedback on the design: claustrophobic, very central, same color everywhere, still "AI looking". Light mode may be the better of the two. Built a third pass on the branch: full-width top bar holding the tabs, the stock name and price straight on the page with four headline stats beside them, wider page, boxes removed from stats, news and metrics, and a single glow at the top in place of blobs everywhere. Tested every tab in both themes at phone, laptop and wide-screen sizes. One issue found and fixed (the chart panel stretched taller than its content). Next: Eyal's verdict on the third pass. Design polish will continue as real content arrives in Phase 2.
+- **2026-11-17:** Eyal's feedback on the third pass: light mode looks great, dark mode still feels like a technology showcase and not a stock site. Reworked the dark theme only: neutral charcoal background, colored glow removed, solid raised panels, blue price line. Light theme is pixel-for-pixel unchanged (compared screenshots before and after). Tested all tabs at three screen sizes, no errors. Also logged Eyal's ask for charts of metrics over time (Phase 7) and the question of how far back the data goes (Phase 2). Next: Eyal's verdict on dark, then merging the branch.
+- **2026-11-17 (second session):** Eyal approved the reworked dark theme and asked for light as the default and for everything to be merged. Switched the default to light, tested it, then opened and merged pull request 3. The live site now has all four design passes. Next: Eyal reviews the live site and signs off on Phase 1, or asks for more changes.

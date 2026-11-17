@@ -99,11 +99,19 @@ export const sampleQuote = {
 
 // ---------- Metrics ----------
 
-export const sampleKeyStats: Stat[] = [
+// Shown next to the price at the top of every page.
+export const sampleHeadlineStats: Stat[] = [
   { label: "Market cap", value: "$1.20T" },
-  { label: "P/E ratio", value: "32.4" },
-  { label: "EPS (12 months)", value: "$4.15" },
   { label: "Volume", value: "48.2M" },
+];
+
+// The short list on the Overview tab.
+export const sampleKeyStats: Stat[] = [
+  { label: "P/E ratio", value: "32.4" },
+  { label: "Forward P/E", value: "26.8" },
+  { label: "EPS (12 months)", value: "$4.15" },
+  { label: "Revenue (12 months)", value: "$66.3B" },
+  { label: "Gross margin", value: "72.5%" },
   { label: "Dividend yield", value: "0.03%" },
 ];
 

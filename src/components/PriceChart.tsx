@@ -61,7 +61,7 @@ export function PriceChart({
     if (!container) return;
 
     // Colors come from the design tokens in globals.css, so the chart
-    // always matches the rest of the site.
+    // always matches the rest of the site, in either theme.
     const styles = getComputedStyle(container);
     const token = (name: string) => styles.getPropertyValue(name).trim();
 
@@ -69,15 +69,11 @@ export function PriceChart({
       autoSize: true, // follow the size of the container, on every screen
       layout: {
         background: { type: ColorType.Solid, color: "transparent" },
-        textColor: token("--color-ink-faint"),
         fontFamily: styles.fontFamily,
         // The library's license asks for a visible TradingView credit.
         attributionLogo: true,
       },
-      grid: {
-        vertLines: { visible: false },
-        horzLines: { color: token("--color-chart-grid") },
-      },
+      grid: { vertLines: { visible: false } },
       rightPriceScale: { borderVisible: false },
       timeScale: { borderVisible: false, fixLeftEdge: true, fixRightEdge: true },
       // Dragging and zooming are off for now so the page scrolls normally
@@ -87,11 +83,30 @@ export function PriceChart({
     });
 
     const series = chart.addSeries(AreaSeries, {
-      lineColor: token("--color-chart-line"),
-      topColor: token("--color-chart-fill-top"),
-      bottomColor: token("--color-chart-fill-bottom"),
       lineWidth: 2,
       priceLineVisible: false,
+    });
+
+    // Paint the chart with the current theme's colors.
+    const applyColors = () => {
+      chart.applyOptions({
+        layout: { textColor: token("--color-ink-faint") },
+        grid: { horzLines: { color: token("--color-chart-grid") } },
+      });
+      series.applyOptions({
+        lineColor: token("--color-chart-line"),
+        topColor: token("--color-chart-fill-top"),
+        bottomColor: token("--color-chart-fill-bottom"),
+      });
+    };
+    applyColors();
+
+    // Repaint when the visitor switches theme. The observer watches the
+    // data-theme attribute on <html> and calls applyColors when it changes.
+    const themeWatcher = new MutationObserver(applyColors);
+    themeWatcher.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
     });
 
     // When the mouse moves over the chart, remember the point under it so
@@ -110,6 +125,7 @@ export function PriceChart({
 
     // Clean up when the component leaves the page.
     return () => {
+      themeWatcher.disconnect();
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
