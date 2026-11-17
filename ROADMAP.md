@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 3 (News). Source research (3.2) is done. Next is 3.4, company announcements, plus industry news from peer companies' filings
-- **Next action:** Eyal: say go on 3.4, and confirm or change the list of peer companies Claude suggested in chat
-- **Blocked on:** that answer
+- **Current phase:** Phase 3 (News). Every sub-step is built: official filings with their attached press releases, company announcements, industry news from seven peer companies, and TradingView's coverage
+- **Next action:** Eyal: check the News tab on the live site and say whether it meets "useful enough that I'd actually check it". If yes, Phase 3 is done and Phase 4 (production hardening and launch) starts
+- **Blocked on:** Eyal's verdict
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -110,13 +110,27 @@ Every item also gets a **topic** (earnings, product, leadership, legal, deals, a
 - [x] 3.1 Agree the categories, topics and certainty labels above (agreed by Eyal, 2026-11-17)
 - [x] 3.2 Source research, like Phase 2: where it comes from, whether we may show it, and whether we may store and summarize it (done 2026-11-17, results below)
 - [x] 3.3 Category A: the company's SEC filings as a feed, with plain-language labels for each filing type (on the News tab, and the latest three on the Overview)
-- [ ] 3.4 Category B: company announcements, from two places found in 3.2: the company's newsroom feed (its address goes in the stock config), and the press releases already attached to SEC filings, linked under each filing
-- [ ] 3.5 Categories C, D and E for reading: TradingView's news widget, the same kind of embed as the chart. Company news (C) and market news (E) are live. Industry news (D) is missing: TradingView's feed covers one stock or the whole market, not an industry. Plan from 3.2: the industry is a list of peer companies in the stock config (competitors, suppliers, customers), shown through their SEC filings with the same code as 3.3
+- [x] 3.4 Category B: company announcements, from two places found in 3.2: the company's newsroom feed (its address goes in the stock config), and the press releases already attached to SEC filings, listed under each filing with their own titles
+- [x] 3.5 Categories C, D and E: company news (C) and market news (E) from TradingView's news widget. Industry news (D) from the SEC filings of seven peer companies listed in the stock config (research below)
 - [x] 3.6 Media coverage as data the AI can use: decided in 3.2. No source checked lets our code store and summarize media articles for a public site, so in Phase 5 the AI finds and reads coverage itself (Claude's web search and web fetch tools) while writing a brief. We store only the brief, short quotes and links
 - [x] 3.7 Where news is stored: decided in 3.2. A Postgres database on Neon's free plan, filled by a scheduled job on GitHub Actions. Set up at the start of Phase 5, when something first needs storing
-- [ ] 3.8 News tab laid out by category, with every source credited. Layout and credits are done, the rest follows 3.4 and 3.5. Keyword filtering is dropped: our code holds no media items until Phase 5, and then the AI judges what is relevant
+- [x] 3.8 News tab laid out by category, with every source credited. Our own sections come first (official filings, company announcements, industry), TradingView's coverage after. Keyword filtering is dropped: our code holds no media items until Phase 5, and then the AI judges what is relevant
 
 **Done when:** the news tab is useful enough that I'd actually check it.
+
+**Peer companies (2026-11-17).** The industry section follows NVIDIA's rivals and supply chain. All of them file with the SEC, so they cost nothing to follow.
+
+| Company | Why it matters for NVIDIA | Filings |
+|---|---|---|
+| AMD | Rival in data center GPUs | 8-K event notices |
+| Intel | Rival in AI accelerators and data center processors | 8-K |
+| Broadcom | Designs custom AI chips for big cloud companies, competing for the same budgets | 8-K |
+| Marvell | Custom AI chips and data center networking | 8-K |
+| TSMC | Manufactures NVIDIA's chips. Its monthly revenue report is an early read on AI chip demand | 6-K (foreign company) |
+| Micron | Supplies the high-bandwidth memory used with NVIDIA's AI chips | 8-K |
+| ASML | Makes the machines chip factories like TSMC need for advanced chips | 6-K (foreign company) |
+
+Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks, with NVIDIA itself around a fifth of the fund). Many of them make analog, car or phone chips that rarely move NVIDIA, so they would add noise. NVIDIA's biggest customers (Microsoft, Alphabet, Amazon, Meta, Oracle) drive its demand but are not chip companies; they can be added to the list later. SK Hynix and Samsung make AI memory too but do not file with the SEC.
 
 **3.2 research (2026-11-17): what each news source allows.** Read from each provider's own pages unless marked otherwise.
 
@@ -215,6 +229,8 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 - [ ] How to package workflows as Claude Code skills, commands or subagents
 - [ ] What AI-written news briefs may contain. Working rule until researched: facts in our own words plus short direct quotes, each credited and linked. Never whole articles or paywalled text. Official filings can be quoted freely. This area of law is unsettled, so check it properly before Phase 5
 - [ ] Project name and domain
+- [ ] Database choice, to settle at the start of Phase 5: Postgres on Neon (recommended in 3.2) or MongoDB, which Eyal raised, and whether paid hosting such as Hostinger is worth it. Claude's view: Postgres fits better (the data is structured, Eyal knows SQL from CS50, and Postgres has built-in search for the chatbot later). MongoDB Atlas's free tier is smaller (512 MB). A paid server has to be maintained, and nothing planned needs one yet
+- [ ] SEC request volume: each refresh of the News tab reads up to about 50 SEC pages (filings, their attachments and peer filings), spaced to stay under the SEC's limit. Watch it in Phase 4, and move it into the Phase 5 database if it becomes a problem
 - [ ] GDELT as a free radar for media stories: test it from GitHub Actions in Phase 5, since it refused every call from Claude's workspace
 - [ ] Company logos (Eyal wants them, like other finance sites have): research how those sites get them. Likely a logo service with terms that allow display, or the company's own brand guidelines. For now the site shows a plain tile with the ticker
 - [ ] Check the exact credit wording TradingView asks for (the NOTICE file in their GitHub repo) before the v1 launch
@@ -246,6 +262,10 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-17 | TradingView widgets use the older script-embed format, not the newer "web component" format | The newer format was tried first and did not load on the live site: its exact code is only given out after signing in, so part of it was guessed. The older format is written out in full in TradingView's tutorial. The cost: a widget has to be rebuilt when the visitor switches theme |
 | 2026-11-17 | The sample chart and the Lightweight Charts library were removed | The price chart now comes from TradingView's widget. The library can come back for our own charts of SEC figures over time (Phase 7) |
 | 2026-11-17 | Quarter 4 figures are worked out as full year minus the first three quarters | Companies do not report the fourth quarter on its own. Checked against the real data: the four quarters add up exactly to the reported full year |
+| 2026-11-17 | Peer companies for industry news: AMD, Intel, Broadcom, Marvell (rivals), TSMC, Micron, ASML (supply chain) | Eyal suggested AMD, Intel, ASML, TSMC and the SMH ETF. The list keeps the companies whose news actually moves NVIDIA and leaves out the rest of SMH as noise. All file with the SEC |
+| 2026-11-17 | News tab order: our own sections first (official filings, company announcements, industry), TradingView's coverage after | Eyal does not want the news dominated by TradingView. The AI briefs in Phase 5 will add the most value on top |
+| 2026-11-17 | Attachment titles are read from the first 32 KB of each document, with a rule for what counts as a headline | The SEC's lists only say "EX-99.1". Tested on NVIDIA, AMD, Intel, Marvell, Micron, TSMC and ASML documents, including foreign company reports |
+| 2026-11-17 | Saved the data source check as a Claude Code skill: `.claude/skills/check-data-source` | It was done twice the same way (Phase 2 and 3.2), and more sources are coming |
 | 2026-11-17 | Company announcements come from the press releases attached to SEC filings and from the company's own newsroom feed, its address kept in the stock config | Both are the company's own words. The SEC copies are free to reuse, and the newsroom feed allows non-commercial use |
 | 2026-11-17 | No news API for media coverage. In Phase 5 the AI finds and reads coverage itself with Claude's web search and web fetch tools | Every feed and API checked bans public display, bans AI use, or did not work. Eyal wanted AI searching anyway. Only the brief, short quotes and links are stored |
 | 2026-11-17 | Industry news means a list of peer companies in the stock config, shown through their SEC filings | Free and works for any company. Eyal noted an industry can be defined in different ways, and a list he edits handles that |
@@ -281,3 +301,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17 (eighth session):** Closed the Phase 2 leftovers. Eyal approved five more TradingView sites for Claude's workspace, so the widgets can now be seen there with live numbers. Confirmed the price panel shows market cap, P/E, dividend yield and the next earnings date. Removed our own repeated ticker and company name from the top (the title stays for screen readers and search engines), and swapped our EPS figure there for revenue growth, since the panel already shows EPS. Found and fixed a bug: in dark mode the price panel had a white background. Merged pull request 6. Then broke Phase 3 into categories and sub-steps from Eyal's description of news, and added his AI news brief idea to Phase 5. Next: Eyal confirms the categories.
 - **2026-11-17 (ninth session):** Eyal approved the categories and sub-steps, and added rules for the AI briefs: short direct quotes, stricter care on sensitive topics, and AI web search. Built the first version of the News tab: the company's last 12 SEC filings with plain-language titles and links to the original documents, plus TradingView's company news and market news feeds. The Overview now shows the latest three filings. Removed all placeholder news, so no sample data is left anywhere. Tested both themes on desktop and phone. A full-page screenshot showed the news feeds blank in dark mode, but scrolling to them showed they work: a screenshot quirk, now noted in CLAUDE.md. Merged pull request 7. Next: 3.2, source research for company announcements and for news our own code can hold.
 - **2026-11-17 (tenth session):** Did 3.2, the news source research, reading each provider's terms at the source where possible and testing real calls. Eyal approved 14 more sites for Claude's workspace; a later request for 2 more (theguardian.com, gdeltproject.org) did not go through, so those two terms pages are marked as not read. Findings: official sources are open (SEC filings carry the company's own press releases, and the company's newsroom feed allows non-commercial use), but no media news source allows our code to store and summarize articles for a public site. Answered Eyal's questions on databases, hosting, agents and workflows: Neon Postgres, GitHub Actions and Vercel cover it for free, with Claude's web search for media coverage in Phase 5. Cross-check on a live case: the Nov 12 filing and its attached press release confirm the CEO change but give no reason. No code changed. Next: 3.4 on Eyal's go.
+- **2026-11-17 (eleventh session):** Saved the data source check as a skill. Researched peer companies (Eyal suggested AMD, Intel, ASML, TSMC and the SMH ETF) and picked seven rivals and suppliers. Built 3.4 and the industry section: the newsroom feed as "Company announcements", attached press releases listed under each filing with their real titles, and peers' newsworthy filings, including foreign companies' 6-K reports. The title rule was tuned on real documents until junk titles like "NEWS RELEASE" and an address line were gone. Added the latest announcements to the Overview and credited the newsroom in the footer. Checked both themes on desktop and phone, no errors. Eyal raised MongoDB and paid hosting: logged as a Phase 5 choice with Claude's view. Merged pull request 9. Next: Eyal's verdict on the News tab, then Phase 4.

@@ -36,13 +36,21 @@ export type FilingTopic =
   | "Company update";
 
 export type Filing = {
-  id: string;
+  id: string; // the filing's number at the SEC (its "accession number")
+  cik: string; // the company's SEC number
   form: string; // the SEC's own code, for example "10-Q"
   kind: string; // the same thing in plain words, for example "Quarterly report"
   topic: FilingTopic;
   title: string;
   filedOn: string; // YYYY-MM-DD
-  url: string; // the document on sec.gov
+  url: string; // the main document on sec.gov
+  primaryDocument: string; // the main document's file name
+  // Event notices (8-K) and foreign company reports (6-K) often carry
+  // attachments, such as the press release that went out the same day.
+  hasAttachments: boolean;
+  // Foreign company reports have no reason codes, so their title has to be
+  // read from the document itself (see documents.ts).
+  titleFromDocument: boolean;
 };
 
 // ---------- Plain-language names ----------
@@ -55,7 +63,17 @@ const KINDS: Record<string, string> = {
   "10-Q": "Quarterly report",
   "8-K": "Event notice",
   "DEF 14A": "Annual meeting notice",
+  // Companies based outside the US file these two instead.
+  "20-F": "Annual report",
+  "6-K": "Company report",
 };
+
+// The event notice reasons that count as news when following other
+// companies. Routine ones, like shareholder vote results, are left out.
+const NEWSWORTHY = new Set([
+  "1.01", "1.02", "1.05", "2.01", "2.02", "2.03", "2.05", "2.06",
+  "4.02", "5.01", "5.02", "7.01", "8.01",
+]);
 
 // An event notice (8-K) lists numbered reasons for being filed. These are
 // the SEC's standard numbers, put into plain words.
@@ -100,7 +118,7 @@ function describe(
   reportDate: string,
   items: string,
 ): { title: string; topic: FilingTopic } {
-  if (baseForm === "10-K") {
+  if (baseForm === "10-K" || baseForm === "20-F") {
     return {
       title: reportDate
         ? `Annual report for the year ended ${longDate(reportDate)}`
@@ -115,6 +133,10 @@ function describe(
         : "Quarterly report",
       topic: "Financial report",
     };
+  }
+  if (baseForm === "6-K") {
+    // The real title is read from the document later. This is the fallback.
+    return { title: "Report filed with the SEC", topic: "Company update" };
   }
   if (baseForm === "DEF 14A") {
     return {
@@ -140,11 +162,20 @@ function describe(
 
 // ---------- The main function ----------
 
+// The folder on sec.gov that holds every document of one filing: the
+// company number, then the filing number without its dashes.
+export function filingFolder(cik: string, accession: string): string {
+  return `https://www.sec.gov/Archives/edgar/data/${Number(cik)}/${accession.replaceAll("-", "")}`;
+}
+
 // cik is the company's SEC number. limit is how many filings to return.
+// newsOnly keeps just the filings that count as news when following
+// another company: newsworthy event notices and foreign company reports.
 export function buildFilings(
   data: SecSubmissions,
   cik: string,
   limit: number,
+  { newsOnly = false }: { newsOnly?: boolean } = {},
 ): Filing[] {
   const recent = data.filings.recent;
   const filings: Filing[] = [];
@@ -157,19 +188,28 @@ export function buildFilings(
     const kind = KINDS[baseForm];
     if (!kind) continue;
 
-    const { title, topic } = describe(baseForm, recent.reportDate[i], recent.items[i]);
+    const items = recent.items[i];
+    if (newsOnly) {
+      const newsworthy = items.split(",").some((code) => NEWSWORTHY.has(code.trim()));
+      if (!(baseForm === "6-K" || (baseForm === "8-K" && newsworthy))) continue;
+    }
+
+    const { title, topic } = describe(baseForm, recent.reportDate[i], items);
     const accession = recent.accessionNumber[i];
+    const primaryDocument = recent.primaryDocument[i];
 
     filings.push({
       id: accession,
+      cik,
       form,
       kind: isAmendment ? `${kind} (corrected)` : kind,
       topic,
       title,
       filedOn: recent.filingDate[i],
-      // Where the document lives on sec.gov: the company number, then the
-      // filing number without its dashes, then the file name.
-      url: `https://www.sec.gov/Archives/edgar/data/${Number(cik)}/${accession.replaceAll("-", "")}/${recent.primaryDocument[i]}`,
+      url: `${filingFolder(cik, accession)}/${primaryDocument}`,
+      primaryDocument,
+      hasAttachments: baseForm === "8-K" || baseForm === "6-K",
+      titleFromDocument: baseForm === "6-K",
     });
   }
 
