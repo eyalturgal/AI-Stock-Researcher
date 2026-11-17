@@ -38,11 +38,11 @@ const applySavedTheme = `(function(){try{var t=localStorage.getItem("theme");if(
 // current tab, swaps underneath. The tabs themselves live in the header.
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // data-theme="dark" is the default. suppressHydrationWarning tells React
+    // data-theme="light" is the default for a first visit. suppressHydrationWarning tells React
     // it is fine that the script above may already have changed it.
     <html
       lang="en"
-      data-theme="dark"
+      data-theme="light"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
