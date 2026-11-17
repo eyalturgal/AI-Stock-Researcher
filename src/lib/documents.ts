@@ -101,7 +101,9 @@ export function parseAttachmentTable(indexHtml: string): AttachmentRef[] {
     if (cells.length < 4) continue;
     const type = cells[3];
     const document = cells[2].split(" ")[0];
-    if (/^EX-99/i.test(type) && document) {
+    // Only plain file names, like "q32026991.htm", become links. Anything
+    // else in that cell is not what the SEC normally lists there.
+    if (/^EX-99/i.test(type) && /^[\w.-]+$/.test(document)) {
       attachments.push({ type, document });
     }
   }

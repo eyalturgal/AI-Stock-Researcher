@@ -39,6 +39,7 @@ Update ROADMAP.md:
 - The SEC needs the `SEC_USER_AGENT` setting (site name, a space, a contact email). Locally it lives in `.env.local`, which is never committed. On Vercel it is an Environment Variable. Never write the email in code or docs.
 - No placeholder data is left on the site. Anything shown before its real source exists must be labeled as a placeholder.
 - Check work with `npm run lint` and `npm run build` before committing.
+- Security headers and the Content Security Policy live in `next.config.ts`. A new outside script, frame or connection must be added to the policy there, then every page checked in both themes for anything blocked.
 - In Claude's cloud workspace, run Node commands that need the internet with `NODE_USE_ENV_PROXY=1` in front (for example `NODE_USE_ENV_PROXY=1 npm run build`). Without it the SEC cannot be reached and the build shows the failure message. This is a workspace quirk, not needed on Vercel or a normal computer.
 - TradingView widgets use the script-embed format from TradingView's own tutorial (scripts on `s3.tradingview.com`, settings as JSON inside the script tag). Take settings from their docs at `https://www.tradingview.com/widget-docs/` (add `.md` to a page address for a plain-text copy). Do not guess widget names or addresses.
 - TradingView widgets load fully in Claude's cloud workspace (their sites are on the allow-list). Give them about 10 seconds before taking a screenshot. Always check them in the dark theme too. Widgets below the visible part of the page can look blank in a full-page screenshot: scroll them into view and take a normal screenshot before calling it a bug.
@@ -47,8 +48,9 @@ Update ROADMAP.md:
 
 ## Project rules
 - Never hard-code a ticker or company name. Everything comes from one config file.
-- API keys and secrets stay server-side, in environment variables, never committed.
+- API keys and secrets stay server-side, in environment variables, never committed. A file that reads a secret or the database starts with `import "server-only"`, so the build fails if it is ever pulled into browser code. Never put a secret in a `NEXT_PUBLIC_` variable: those are sent to browsers.
 - Every external API must be cached and must have an error fallback.
+- Outside data is shown as text, never as HTML. Links taken from outside data must be ordinary web links (see `webAddress` in `src/lib/feed.ts`).
 - Check data source terms allow public display, and credit sources on the site. Use the `check-data-source` skill (`.claude/skills/check-data-source/SKILL.md`) for every new source.
 - AI-written research is a research aid, not financial advice. It must show its sources, carry a "not financial advice" note, and never tell anyone to buy or sell.
 - When I repeat a process that will be needed again (e.g. setting up a stock), suggest saving it as a reusable skill, command, subagent or script.

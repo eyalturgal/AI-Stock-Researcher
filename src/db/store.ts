@@ -5,6 +5,10 @@
 // problem is logged, nothing is returned, and the caller falls back to the
 // live source.
 
+// Server only: this file reads private settings or the database. The line
+// below makes the build fail if it is ever pulled into code that runs in
+// the visitor's browser.
+import "server-only";
 import { desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { announcements, filingDetails } from "@/db/schema";
