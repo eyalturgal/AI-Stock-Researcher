@@ -25,6 +25,7 @@ Update ROADMAP.md:
 - Site-wide settings live in `src/config/site.ts`. The tracked stock lives in `src/config/stock.ts`, and that is the only file allowed to name a ticker or company.
 - Design tokens (colors, the `glass` and `glass-button` styles) live in `src/app/globals.css`. Components use the token names, never raw color codes.
 - Layout rule: content sits straight on the page, separated by space and thin lines. Glass is only for things that float above the page (the top bar, the chart panel). Do not put a box around everything. Page sections use the `shell` class so their edges line up.
+- The themes have different characters. Light: airy, soft color wash at the top, see-through glass. Dark: a trading desk, flat neutral charcoal, no colored glow, solid panels. Do not add glows or gradients to the dark theme.
 - There are two themes, dark (default) and light. Any new color must get a value for both in `globals.css`, and every visual change must be checked in both.
 - Reusable pieces live in `src/components`. Each tab is a page in `src/app`.
 - `src/data/sample.ts` is placeholder data for Phase 1. It gets replaced by real data in Phase 2. While any sample data is on the site, it must be labeled as sample.

@@ -10,9 +10,11 @@
    theme. The light theme, further down, replaces them. Nothing else in the
    project needs to know which theme is on.
 
-   The palette mixes two moods:
-   - AI and futuristic: cyan and violet
-   - Markets and money: emerald green and gold
+   The two themes have different characters on purpose:
+   - Light is airy: a soft wash of color at the top, see-through glass.
+   - Dark is a trading desk: flat charcoal, no colored glow, solid panels.
+     Color is left to the data (the price line, green for up, red for down)
+     and one gold highlight.
 
    Layout idea: the page is open. Most content sits straight on the page,
    separated by space and thin lines. Glass is saved for the few things that
@@ -25,19 +27,19 @@
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-  /* Page background */
-  --color-canvas: #060912;
+  /* Page background: neutral charcoal */
+  --color-canvas: #101215;
 
   /* Text, from strongest to quietest */
-  --color-ink: #f2f4f8;
-  --color-ink-soft: #b6bdcb;
-  --color-ink-faint: #8a92a3;
+  --color-ink: #eceef1;
+  --color-ink-soft: #b3b8c0;
+  --color-ink-faint: #8a9099;
 
   /* Hairlines and borders */
-  --color-line: rgba(255, 255, 255, 0.1);
+  --color-line: rgba(255, 255, 255, 0.09);
 
   /* The accent: focus rings and the price line */
-  --color-accent: #22b8d9;
+  --color-accent: #3987e5;
 
   /* Gold, used sparingly as the "money" highlight */
   --color-gold: #f5c451;
@@ -50,9 +52,9 @@
   --color-down: #e05252;
 
   /* Chart parts (read by the chart component) */
-  --color-chart-line: #18a5b8;
-  --color-chart-fill-top: rgba(24, 165, 184, 0.34);
-  --color-chart-fill-bottom: rgba(24, 165, 184, 0);
+  --color-chart-line: #3987e5;
+  --color-chart-fill-top: rgba(57, 135, 229, 0.26);
+  --color-chart-fill-bottom: rgba(57, 135, 229, 0);
   --color-chart-grid: rgba(255, 255, 255, 0.06);
 }
 
@@ -63,28 +65,26 @@
   /* Emerald to cyan to violet. The signature of the site. */
   --brand-gradient: linear-gradient(120deg, #34d399, #22d3ee 50%, #a78bfa);
 
-  /* The glow behind the top of the page */
-  --glow-emerald: rgba(16, 185, 129, 0.26);
-  --glow-cyan: rgba(34, 184, 217, 0.2);
-  --glow-violet: rgba(139, 92, 246, 0.2);
+  /* The light behind the top of the page. In the dark theme it has no
+     color: just a faint lift, like a lamp over a desk. */
+  --glow-left: rgba(255, 255, 255, 0.045);
+  --glow-center: rgba(255, 255, 255, 0.03);
+  --glow-right: rgba(255, 255, 255, 0.02);
 
   /* The top bar: the page color, slightly see-through */
-  --bar-fill: rgba(6, 9, 18, 0.62);
+  --bar-fill: rgba(16, 18, 21, 0.78);
 
-  /* Glass panels */
-  --glass-fill: linear-gradient(
-    140deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.035)
-  );
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-highlight: rgba(255, 255, 255, 0.16);
-  --glass-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.75);
+  /* Panels: in the dark theme these are solid and slightly raised,
+     not see-through. */
+  --glass-fill: linear-gradient(180deg, #191c21, #15181c);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.05);
+  --glass-shadow: 0 18px 44px -26px rgba(0, 0, 0, 0.7);
 
   /* Things you can press: hover and selected states */
-  --press-hover: rgba(255, 255, 255, 0.07);
-  --press-selected: rgba(255, 255, 255, 0.14);
-  --press-selected-border: rgba(255, 255, 255, 0.2);
+  --press-hover: rgba(255, 255, 255, 0.06);
+  --press-selected: rgba(255, 255, 255, 0.11);
+  --press-selected-border: rgba(255, 255, 255, 0.14);
 }
 
 /* --------------------------------------------------------------------------
@@ -114,9 +114,10 @@
   --color-chart-fill-bottom: rgba(11, 135, 168, 0);
   --color-chart-grid: rgba(12, 19, 34, 0.07);
 
-  --glow-emerald: rgba(16, 185, 129, 0.28);
-  --glow-cyan: rgba(34, 184, 217, 0.26);
-  --glow-violet: rgba(139, 92, 246, 0.22);
+  /* Light keeps its colored wash: emerald, cyan and violet. */
+  --glow-left: rgba(16, 185, 129, 0.28);
+  --glow-center: rgba(34, 184, 217, 0.26);
+  --glow-right: rgba(139, 92, 246, 0.22);
 
   --bar-fill: rgba(238, 242, 248, 0.68);
 
@@ -152,9 +153,10 @@ body {
   font-family: var(--font-sans);
 }
 
-/* A wide glow of color behind the top of the page only. It gives the
-   opening screen some atmosphere, then fades out so the rest of the page
-   stays calm and easy to read. It scrolls away with the page. */
+/* A wide glow behind the top of the page only. It gives the opening screen
+   some atmosphere, then fades out so the rest of the page stays calm and
+   easy to read. It scrolls away with the page. Each theme sets its own
+   glow colors above. */
 .backdrop {
   position: absolute;
   top: 0;
@@ -164,9 +166,9 @@ body {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(60rem 30rem at 0% 0%, var(--glow-emerald), transparent 70%),
-    radial-gradient(52rem 28rem at 45% -10%, var(--glow-cyan), transparent 70%),
-    radial-gradient(50rem 30rem at 100% 0%, var(--glow-violet), transparent 70%);
+    radial-gradient(60rem 30rem at 0% 0%, var(--glow-left), transparent 70%),
+    radial-gradient(52rem 28rem at 45% -10%, var(--glow-center), transparent 70%),
+    radial-gradient(50rem 30rem at 100% 0%, var(--glow-right), transparent 70%);
 }
 
 /* The width of the page content. Wide on big screens, with side padding
