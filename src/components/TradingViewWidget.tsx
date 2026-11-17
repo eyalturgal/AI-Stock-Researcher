@@ -5,8 +5,8 @@
 import { useEffect, useRef, useState } from "react";
 import { stockConfig } from "@/config/stock";
 
-// Shows a ready-made widget from TradingView: the price chart, or a panel
-// with the current price and key figures.
+// Shows a ready-made widget from TradingView: the price chart, a panel with
+// the current price and key figures, or a news feed.
 //
 // Why a widget and not our own chart: stock prices are licensed data, and
 // none of the free price sources allow showing them on a public site.
@@ -20,8 +20,17 @@ import { stockConfig } from "@/config/stock";
 // The settings below are the ones from TradingView's tutorial, with our
 // stock and our theme filled in.
 
-type WidgetName = "advanced-chart" | "symbol-info";
+type WidgetName = "advanced-chart" | "symbol-info" | "stock-news" | "market-news";
 type Theme = "light" | "dark";
+
+// Which of TradingView's script files draws each widget. Both news feeds
+// use the same one, called "timeline", with different settings.
+const SCRIPT_FILE: Record<WidgetName, string> = {
+  "advanced-chart": "advanced-chart",
+  "symbol-info": "symbol-info",
+  "stock-news": "timeline",
+  "market-news": "timeline",
+};
 
 function widgetSettings(widget: WidgetName, theme: Theme) {
   const symbol = stockConfig.tradingViewSymbol;
@@ -38,6 +47,22 @@ function widgetSettings(widget: WidgetName, theme: Theme) {
       allow_symbol_change: false, // this site is about one stock
       calendar: false,
       support_host: "https://www.tradingview.com",
+    };
+  }
+
+  if (widget === "stock-news" || widget === "market-news") {
+    return {
+      // "symbol" shows stories about our stock. "market" shows the top
+      // stories for the stock market as a whole.
+      ...(widget === "stock-news"
+        ? { feedMode: "symbol", symbol }
+        : { feedMode: "market", market: "stock" }),
+      colorTheme: theme,
+      isTransparent: true,
+      displayMode: "regular",
+      width: "100%",
+      height: "100%",
+      locale: "en",
     };
   }
 
@@ -88,7 +113,7 @@ export function TradingViewWidget({
       const script = document.createElement("script");
       script.type = "text/javascript";
       script.async = true;
-      script.src = `https://s3.tradingview.com/external-embedding/embed-widget-${widget}.js`;
+      script.src = `https://s3.tradingview.com/external-embedding/embed-widget-${SCRIPT_FILE[widget]}.js`;
       script.innerHTML = JSON.stringify(widgetSettings(widget, currentTheme()));
       container.appendChild(script);
     };

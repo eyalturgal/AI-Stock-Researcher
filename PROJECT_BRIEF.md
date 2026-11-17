@@ -77,6 +77,7 @@ The research for these big stocks is done for the user, using far more data than
 - Bull case and bear case rundowns
 - Earnings summaries
 - Short research papers that summarize one part of the picture (a filing, an earnings call, a product cycle)
+- News briefs: one brief per event in place of ten articles repeating each other. Short credited quotes, and clear labels for what is confirmed, only reported, or rumor
 - Daily news digests: what happened and why it matters
 - Balanced view: both sides of the picture, not hype
 Built as saved, reusable skills/agents that run on a schedule and can be pointed at any ticker.

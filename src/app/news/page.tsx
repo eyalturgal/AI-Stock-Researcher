@@ -1,34 +1,56 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { stockConfig } from "@/config/stock";
-import { sampleNews, type NewsCategory } from "@/data/sample";
 import { SectionHeader } from "@/components/ui/GlassCard";
-import { NewsList } from "@/components/NewsList";
+import { FilingList, FilingListLoading } from "@/components/Filings";
+import { TradingViewWidget } from "@/components/TradingViewWidget";
 
 export const metadata: Metadata = { title: "News" };
 
-// The three kinds of news the site will carry, and the title for each.
-const sections: { category: NewsCategory; title: string }[] = [
-  { category: "Company", title: `${stockConfig.shortName} news` },
-  { category: "Industry", title: `${stockConfig.industry} news` },
-  { category: "Market", title: "Top market news" },
-];
-
-// The News tab: one column per kind of news.
+// The News tab. News is sorted by who is speaking:
+// - Official filings: what the company has told the regulator. Ours, from the SEC.
+// - News coverage: what the media reports. From TradingView's news feed.
+// Company announcements and industry news are still to come.
 export default function NewsPage() {
   return (
-    <div>
-      <p className="mb-8 text-sm text-ink-faint">
-        These are placeholders for now. Real news arrives in the next phase.
-      </p>
-      <div className="grid gap-x-14 gap-y-14 lg:grid-cols-3">
-      {sections.map((section) => (
-        <section key={section.category}>
-          <SectionHeader title={section.title} />
-          <NewsList
-            items={sampleNews.filter((item) => item.category === section.category)}
+    <div className="flex flex-col gap-16">
+      <section>
+        <SectionHeader title="Official filings" />
+        <p className="-mt-2 mb-6 max-w-2xl text-sm leading-6 text-ink-soft">
+          What {stockConfig.shortName} has reported to the regulator, newest
+          first. This is the primary source: the company is legally
+          responsible for what these documents say.
+        </p>
+        <Suspense fallback={<FilingListLoading count={6} />}>
+          <FilingList limit={12} />
+        </Suspense>
+      </section>
+
+      <div className="grid gap-x-14 gap-y-16 lg:grid-cols-2">
+        <section>
+          <SectionHeader title={`${stockConfig.shortName} in the news`} />
+          <p className="-mt-2 mb-4 text-sm leading-6 text-ink-soft">
+            Media coverage of the company, from TradingView&apos;s news feed.
+          </p>
+          <TradingViewWidget
+            widget="stock-news"
+            className="h-[38rem]"
+            loadingText="Loading news from TradingView."
           />
         </section>
-      ))}
+
+        <section>
+          <SectionHeader title="Market news" />
+          <p className="-mt-2 mb-4 text-sm leading-6 text-ink-soft">
+            The top stories across the stock market, from TradingView&apos;s
+            news feed.
+          </p>
+          <TradingViewWidget
+            widget="market-news"
+            className="h-[38rem]"
+            loadingText="Loading news from TradingView."
+          />
+        </section>
       </div>
     </div>
   );

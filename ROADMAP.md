@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 3 (News), at sub-step 3.1: agreeing the news categories. Phase 2 is finished
-- **Next action:** Eyal: confirm or change the news categories and sub-steps written under Phase 3. Then Claude starts 3.2, the source research
-- **Blocked on:** that confirmation
+- **Current phase:** Phase 3 (News). Live now: official filings from the SEC, plus company and market news from TradingView's news feed. Still to do: company announcements, industry news, and news as data the AI can use
+- **Next action:** Eyal: look at the News tab on the live site. Claude: start 3.2, researching sources for company announcements and for news our own code can hold
+- **Blocked on:** nothing
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -107,14 +107,14 @@ Phase 3 gathers and organizes the news. Turning it into AI-written briefs is Pha
 Every item also gets a **topic** (earnings, product, leadership, legal, deals, analyst views) and a **certainty label** (confirmed by an official source, reported by media, rumor or speculation, opinion).
 
 **Sub-steps:**
-- [ ] 3.1 Agree the categories, topics and certainty labels above (waiting for Eyal)
-- [ ] 3.2 Source research for each category, like Phase 2: where it comes from, whether we may show it, and whether we may store and summarize it
-- [ ] 3.3 Category A: the company's SEC filings as a feed, with plain-language labels for each filing type (uses the SEC connection already built)
+- [x] 3.1 Agree the categories, topics and certainty labels above (agreed by Eyal, 2026-11-17)
+- [ ] 3.2 Source research, like Phase 2: where it comes from, whether we may show it, and whether we may store and summarize it. Still needed for category B and for 3.6. Category A and the TradingView feeds were already cleared in the Phase 2 research
+- [x] 3.3 Category A: the company's SEC filings as a feed, with plain-language labels for each filing type (on the News tab, and the latest three on the Overview)
 - [ ] 3.4 Category B: company announcements, from the source chosen in 3.2
-- [ ] 3.5 Categories C, D and E for reading: TradingView's news widget, the same kind of embed as the chart
+- [ ] 3.5 Categories C, D and E for reading: TradingView's news widget, the same kind of embed as the chart. Company news (C) and market news (E) are live. Industry news (D) is missing: TradingView's feed covers one stock or the whole market, not an industry
 - [ ] 3.6 Categories C, D and E as data our own code can hold, from the source chosen in 3.2. Needed for the AI briefs
 - [ ] 3.7 Decide where news items are stored, since the AI needs to look back over days of items
-- [ ] 3.8 News tab laid out by category, with keyword filtering from the stock config and every source credited
+- [ ] 3.8 News tab laid out by category, with keyword filtering from the stock config and every source credited. Layout and credits are done. Keyword filtering waits for 3.6, since we cannot filter inside TradingView's widget
 
 **Done when:** the news tab is useful enough that I'd actually check it.
 
@@ -129,7 +129,7 @@ Every item also gets a **topic** (earnings, product, leadership, legal, deals, a
 
 ### Phase 5: Automation and AI research layer
 - [ ] Scheduled jobs that refresh data and news on their own
-- [ ] AI news briefs (Eyal's idea, 2026-11-17): group stories about the same event, then write one brief per event. Each brief says what happened, what is confirmed, what is only reported, where sources disagree, what is still unknown, and links every source. Shown as small cards that open into the full brief. Built as a fixed workflow that runs on a schedule, not a free-roaming agent
+- [ ] AI news briefs (Eyal's idea, 2026-11-17): group stories about the same event, then write one brief per event. Each brief says what happened, what is confirmed, what is only reported, where sources disagree, what is still unknown, and links every source. Shown as small cards that open into the full brief. Built as a fixed workflow that runs on a schedule, not a free-roaming agent. Eyal's additions: use short direct quotes, credited and linked, so nobody's words get reworded wrong. Sensitive topics (leadership, legal, scandals, rumors) get stricter rules: only what a named source says, labeled as reported until an official source confirms it. The AI may also search the web for stories the regular sources miss
 - [ ] AI daily digest: what happened and why it matters
 - [ ] AI bull case and bear case rundowns
 - [ ] AI earnings summaries
@@ -188,12 +188,11 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 - [ ] Is OpenBB worth using as the data layer, or simpler to call APIs directly?
 - [ ] Which AI model/provider for research and the chatbot, and how to cap costs
 - [ ] How scheduled jobs/agents run in production. Leaning GitHub Actions: Vercel's free plan only runs scheduled jobs once a day. Eyal is fine paying for Vercel if that turns out simpler
-- [ ] Public or private site: if the best data source only allows personal use, one option is to put the site behind a login while building. Decide per data source in Phase 2
+- [ ] Public or private site: the site is currently open to anyone with the link. Eyal thinks of it as private. Putting it behind a login is a Vercel setting. Worth deciding before Phase 5, since what the AI briefs may do can depend on it
 - [ ] Which open source data projects to build on: OpenBB and Fincept Terminal (the "open source Bloomberg terminal" projects) get evaluated in Phase 2
 - [ ] How to build the full chart workspace: Lightweight Charts has no drawing tools built in. Options to research: TradingView's larger Advanced Charts library (free but needs their approval), TradingView's embeddable widget, or community plugins
 - [ ] How to package workflows as Claude Code skills, commands or subagents
-- [ ] What AI-written news summaries may contain. Working rule until researched: facts in our own words, short, with a link and credit to each source, never copied sentences or paywalled text. Official filings can be quoted freely. This area of law is unsettled, so check it properly before Phase 5
-- [ ] Should the AI also search the web itself for stories our sources miss? More coverage, but it costs more per run and is less predictable. Decide in Phase 5
+- [ ] What AI-written news briefs may contain. Working rule until researched: facts in our own words plus short direct quotes, each credited and linked. Never whole articles or paywalled text. Official filings can be quoted freely. This area of law is unsettled, so check it properly before Phase 5
 - [ ] Project name and domain
 - [ ] Company logos (Eyal wants them, like other finance sites have): research how those sites get them. Likely a logo service with terms that allow display, or the company's own brand guidelines. For now the site shows a plain tile with the ticker
 - [ ] Check the exact credit wording TradingView asks for (the NOTICE file in their GitHub repo) before the v1 launch
@@ -225,6 +224,11 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-17 | TradingView widgets use the older script-embed format, not the newer "web component" format | The newer format was tried first and did not load on the live site: its exact code is only given out after signing in, so part of it was guessed. The older format is written out in full in TradingView's tutorial. The cost: a widget has to be rebuilt when the visitor switches theme |
 | 2026-11-17 | The sample chart and the Lightweight Charts library were removed | The price chart now comes from TradingView's widget. The library can come back for our own charts of SEC figures over time (Phase 7) |
 | 2026-11-17 | Quarter 4 figures are worked out as full year minus the first three quarters | Companies do not report the fourth quarter on its own. Checked against the real data: the four quarters add up exactly to the reported full year |
+| 2026-11-17 | News categories A to E, with topics and certainty labels, agreed | Eyal's breakdown of news, sorted by who is speaking |
+| 2026-11-17 | News tab first version: official filings from the SEC, company and market news from TradingView's news widget | Both sources were already cleared in the Phase 2 research, so they went live before the rest of the research. Eyal: get something out there, then fix |
+| 2026-11-17 | AI news briefs may use short direct quotes, credited and linked | Eyal's idea. Quoting keeps the AI from rewording a source wrong, which matters most for rumors and scandals. Whole articles and paywalled text are never copied |
+| 2026-11-17 | Sensitive topics get stricter rules in the AI briefs | Eyal: some things matter more to get right. Leadership, legal, scandals and rumors are labeled as reported until an official source confirms them |
+| 2026-11-17 | The AI may search the web for stories the regular sources miss | Eyal wants the widest coverage. Cost and reliability get designed in Phase 5 |
 | 2026-11-17 | Direction check from Eyal: do not rebuild what leaders already do well (charts stay with TradingView). The site's own angle is AI tools that help people understand the data, and pulling together data that single sources lack | Keeps effort on what makes the site different. Every new feature should be judged against this |
 | 2026-11-17 | SEC EDGAR is the source for filings and reported financials | It is the only source checked that is free, needs no key and explicitly allows reuse on a public site. Every route for prices uses it |
 | 2026-11-16 | Hosting stays on Vercel's free plan. Eyal will pay if a limit gets in the way | Removes hosting cost as a reason to compromise the design |
@@ -248,3 +252,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17 (sixth session):** Eyal confirmed the SEC figures show on the live site, and that the TradingView widgets did not load. Cause: the widgets used TradingView's newer format with a partly guessed address. Rebuilt them in the script-embed format from TradingView's tutorial, with a price panel under the company name and the full chart. Tested in the workspace: the scripts load, the frames appear on every tab, they rebuild in the right theme when switching, and there are no page errors. The live numbers could not be seen here. Merged pull request 5. Next: Eyal confirms on the live site.
 - **2026-11-17 (seventh session):** Eyal confirmed the TradingView price and chart work on the live site and restated the direction: lean on leaders for what they do well, and make AI help and gathered data the site's own angle. No code changed. Leftovers from Phase 2: check whether the price panel shows market cap and P/E, and tidy the company name appearing twice at the top. Next: Phase 3 (News), on Eyal's go.
 - **2026-11-17 (eighth session):** Closed the Phase 2 leftovers. Eyal approved five more TradingView sites for Claude's workspace, so the widgets can now be seen there with live numbers. Confirmed the price panel shows market cap, P/E, dividend yield and the next earnings date. Removed our own repeated ticker and company name from the top (the title stays for screen readers and search engines), and swapped our EPS figure there for revenue growth, since the panel already shows EPS. Found and fixed a bug: in dark mode the price panel had a white background. Merged pull request 6. Then broke Phase 3 into categories and sub-steps from Eyal's description of news, and added his AI news brief idea to Phase 5. Next: Eyal confirms the categories.
+- **2026-11-17 (ninth session):** Eyal approved the categories and sub-steps, and added rules for the AI briefs: short direct quotes, stricter care on sensitive topics, and AI web search. Built the first version of the News tab: the company's last 12 SEC filings with plain-language titles and links to the original documents, plus TradingView's company news and market news feeds. The Overview now shows the latest three filings. Removed all placeholder news, so no sample data is left anywhere. Tested both themes on desktop and phone. A full-page screenshot showed the news feeds blank in dark mode, but scrolling to them showed they work: a screenshot quirk, now noted in CLAUDE.md. Merged pull request 7. Next: 3.2, source research for company announcements and for news our own code can hold.
