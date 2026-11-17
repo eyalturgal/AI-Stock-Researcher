@@ -68,8 +68,8 @@ export default function OverviewPage() {
           <SectionHeader
             title="Latest filings"
             action={
-              <Link href="/news" className={linkStyle}>
-                All news
+              <Link href="/news/filings" className={linkStyle}>
+                More filings
               </Link>
             }
           />
@@ -83,8 +83,8 @@ export default function OverviewPage() {
             <SectionHeader
               title="Latest announcements"
               action={
-                <Link href="/news" className={linkStyle}>
-                  All news
+                <Link href="/news/announcements" className={linkStyle}>
+                  More announcements
                 </Link>
               }
             />

@@ -141,11 +141,12 @@ async function detailsFor(filings: Filing[]): Promise<(FilingDetails | null)[]> 
 
 // ---------- The tracked company ----------
 
+// Without a limit, every filing the site keeps is shown.
 export async function FilingList({
   limit,
   layout = "grid",
 }: {
-  limit: number;
+  limit?: number;
   layout?: Layout;
 }) {
   const all = await getFilings();
@@ -171,7 +172,7 @@ export async function FilingList({
         are the company&apos;s own titles when a filing has one, otherwise our
         plain-language label. Each link opens the original document.{" "}
         <a href={secCompanyUrl()} target="_blank" rel="noopener noreferrer" className={linkStyle}>
-          All filings
+          Full list at the SEC
         </a>
       </p>
     </div>
@@ -180,10 +181,11 @@ export async function FilingList({
 
 // ---------- Other companies in the industry ----------
 
-export async function IndustryList({ limit }: { limit: number }) {
-  const filings = await getIndustryFilings(limit);
-  if (!filings) return <Unavailable what="Filings from other companies" />;
+export async function IndustryList({ limit }: { limit?: number }) {
+  const all = await getIndustryFilings();
+  if (!all) return <Unavailable what="Filings from other companies" />;
 
+  const filings = all.slice(0, limit);
   const details = await detailsFor(filings);
 
   return (

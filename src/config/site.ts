@@ -17,4 +17,13 @@ export const siteConfig = {
     { label: "Metrics", href: "/metrics" },
     { label: "News", href: "/news" },
   ],
+  // The sub-tabs under News. Each one is a page in src/app/news. The first
+  // is the News tab's own page, with a short version of every section.
+  newsTabs: [
+    { label: "All news", href: "/news" },
+    { label: "Filings", href: "/news/filings" },
+    { label: "Announcements", href: "/news/announcements" },
+    { label: "Industry", href: "/news/industry" },
+    { label: "Coverage", href: "/news/coverage" },
+  ],
 } as const;

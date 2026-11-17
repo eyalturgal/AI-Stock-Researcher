@@ -13,16 +13,17 @@ const LAYOUTS: Record<Layout, string> = {
   single: "flex flex-col gap-8",
 };
 
+// Without a limit, every announcement the site keeps is shown.
 export async function AnnouncementList({
   limit,
   layout = "grid",
 }: {
-  limit: number;
+  limit?: number;
   layout?: Layout;
 }) {
-  const announcements = await getAnnouncements(limit);
+  const all = await getAnnouncements();
 
-  if (!announcements) {
+  if (!all) {
     return (
       <p className="border-t border-line pt-3 text-sm leading-6 text-ink-soft">
         The company&apos;s announcements could not be loaded right now. This
@@ -30,6 +31,8 @@ export async function AnnouncementList({
       </p>
     );
   }
+
+  const announcements = all.slice(0, limit);
 
   return (
     <div>

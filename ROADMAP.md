@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 3 (News), extended with three sub-steps Eyal asked for. The database (3.9) and friendly titles (3.10) are done. News sub-tabs (3.11) is the last one
-- **Next action:** Claude: start 3.11, news sub-tabs, on Eyal's go. Starting points: read the Next.js guide on layouts and nested pages in `node_modules/next/dist/docs/` first; keep the list of sub-tabs in `src/config/site.ts`; `/news` keeps a short version of every section, and each sub-page (Filings, Announcements, Industry, Coverage) shows more items. Announcements can go further back than the feed's 20 items, from the database history
-- **Blocked on:** nothing
+- **Current phase:** Phase 3 (News). Every sub-step is built, including the three Eyal added (database, friendly titles, news sub-tabs). Phase 3 is done when Eyal finds the News tab useful enough to actually check it
+- **Next action:** Eyal: look through the News tab and its sub-tabs on the live site and give the Phase 3 verdict. Then Claude: Phase 4, starting with the security pass
+- **Blocked on:** Eyal's Phase 3 verdict
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -19,6 +19,8 @@ This file is the source of truth for where the project stands. Update it at the 
 - [x] Tech stack and hosting chosen
 - [x] Hello world page built, merged to `main` and deployed on Vercel
 - [x] Phase 1 first pass: design system, four tabs, stock config, sample data
+- [x] Phase 2: real figures from the SEC, with TradingView's price panel and chart
+- [x] Phase 3 built: the News tab with filings, company announcements, industry news and media coverage, in sub-tabs, with a database behind it (waiting on Eyal's verdict)
 
 ---
 
@@ -37,7 +39,7 @@ Each phase ends with something working and visible. Don't start the next phase u
 
 **Done when:** a blank page is live on the internet and deploys automatically when I push to GitHub.
 
-**Live URL:** not recorded yet. Eyal to paste it here.
+**Live URL:** https://ai-stock-researcher-ten.vercel.app/ (from Eyal, 2026-11-17). Claude's workspace cannot open it: its network blocks the address.
 
 **Left over from Phase 0:** the git basics box. Eyal has now done a pull request and a merge by hand. Commit, push and branch get practiced during Phase 1, one small change at a time.
 
@@ -117,7 +119,7 @@ Every item also gets a **topic** (earnings, product, leadership, legal, deals, a
 - [x] 3.8 News tab laid out by category, with every source credited. Our own sections come first (official filings, company announcements, industry), TradingView's coverage after. Keyword filtering is dropped: our code holds no media items until Phase 5, and then the AI judges what is relevant
 - [x] 3.9 Database: Postgres on Neon's free plan (Eyal chose it, 2026-11-17; moved up from Phase 5). First jobs: keep each filing's attachment titles once they are read, so the SEC is not asked again on every refresh, and keep the newsroom's history, since its feed only holds the last 20 items. Done: SEC requests per build went from 46 to 9
 - [x] 3.10 Friendly titles (Eyal's request): use the company's own attachment title as the headline when there is one ("NVIDIA Announces CEO Transition" in place of "Leadership or board change"), turn ALL-CAPITAL titles into normal case, and trim legal wording. AI rewrites what rules cannot fix, in Phase 5. Done: our label now sits under the headline on an "SEC filing" line, and the rules (in `src/lib/documents.ts`) were tested on every stored title
-- [ ] 3.11 News sub-tabs (Eyal's request): each section opens into its own page with more items (Filings, Announcements, Industry, Coverage), reached from a row of sub-tabs under the main tabs
+- [x] 3.11 News sub-tabs (Eyal's request): each section opens into its own page with more items (Filings, Announcements, Industry, Coverage), reached from a row of sub-tabs under the main tabs. Done: "All news" shows a short version of every section with a "More…" link, and the sub-pages show 40 filings, every saved announcement, 30 industry filings and taller news boxes
 
 **Eyal's steps for 3.9:**
 1. In Vercel, add a database and pick Neon (Neon's guide calls this the "Vercel-Managed" route and recommends it for anyone new to Neon). If asked, choose Create New Neon Account.
@@ -245,6 +247,7 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 - [ ] GDELT as a free radar for media stories: test it from GitHub Actions in Phase 5, since it refused every call from Claude's workspace
 - [ ] Company logos (Eyal wants them, like other finance sites have): research how those sites get them. Likely a logo service with terms that allow display, or the company's own brand guidelines. For now the site shows a plain tile with the ticker
 - [ ] Check the exact credit wording TradingView asks for (the NOTICE file in their GitHub repo) before the v1 launch
+- [ ] SEC pacing with several build workers: the request queue in `src/lib/sec.ts` covers one running copy of the program. Next.js builds a site of fewer than 25 pages in one worker, so builds are safe today. With more stocks (Phase 9), builds will use several workers, each with its own queue, and together they could pass the SEC's limit of 10 a second. Options then: build with one worker, or share the limit (for example through the database)
 
 ---
 
@@ -297,6 +300,9 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 | 2026-11-16 | Hosting stays on Vercel's free plan. Eyal will pay if a limit gets in the way | Removes hosting cost as a reason to compromise the design |
 | 2026-11-17 | A filing's headline is the company's own title when the filing carries a press release, with our plain-language label on an "SEC filing" line under it | Eyal's request. The company's title says what happened, and our label still says what kind of filing it is |
 | 2026-11-17 | Title cleanup rules run when a title is shown, not when it is stored | Stored titles stay exactly as the company wrote them, and a better rule fixes every title at once. What rules cannot fix waits for the AI step in Phase 5 |
+| 2026-11-17 | News sub-tabs are pages under `/news` with one shared layout: All news, Filings, Announcements, Industry, Coverage. "All news" shows each section short with a "More…" link, and each sub-page shows it in full | Eyal's request: open up each section without making the News page longer. The list of sub-tabs lives in the site config |
+| 2026-11-17 | Each news source is fetched as one fixed-size list (40 filings, 30 industry filings, 50 announcements), and every page shows the newest few of it | New pages add no requests to the SEC or the newsroom |
+| 2026-11-17 | SEC requests wait in a queue, each leaving 125 ms after the one before | Measured on a test build: the old time-slot method let two requests leave 61 ms apart when the program was busy. The queue measured 125 ms at the least and 8 a second at most |
 
 ---
 
@@ -323,3 +329,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17 (twelfth session):** Eyal asked for friendly titles, news sub-tabs and the database, raised partnerships as something worth tracking, and asked about the SEC's limits. Answered the limits from the SEC's own pages. Checked a source for partnerships: NVIDIA's quarterly 13F holdings report lists 8 companies it owns shares in. Added 3.9 to 3.11 to Phase 3 and partners to Phase 7, with the database steps for Eyal. No code changed. Next: Eyal checks the site and creates the database.
 - **2026-11-17 (thirteenth session):** Eyal created the Neon database in Vercel, connected it for Preview and Production, and switched its settings to Secret. Built 3.9 with Drizzle: two tables (filing details and newsroom items), a first migration written as plain SQL, table changes applied at the start of each build, and reads and writes that fall back to the live sources on any failure. Measured SEC requests per build: 46 with an empty database, 9 after. Tested a build with no database setting and one with the database stopped: both built the full site. Merged pull request 11. Next: 3.10, friendly titles.
 - **2026-11-17 (fourteenth session):** Eyal confirmed the live build reports "Database tables are up to date", so the live site uses the Neon database. Built 3.10, friendly titles. When a filing carries a press release, the release's title is now the headline ("NVIDIA Announces CEO Transition"), with our plain-language label under it. New cleanup rules: titles written all in capitals become normal case (keeping short forms like AI and company names from the stock config like AMD), legal tails are cut, long financial statement titles are shortened, and a repeated date at the end is dropped. Tested the rules on every title in the database plus made-up edge cases. One bug found and fixed on the way: a date was being cut from the financial statement titles. Checked both themes. SEC requests per build stay at 9. Also removed the price route question from the open list, since it was decided earlier. Merged pull request 12. Next: 3.11, news sub-tabs.
+- **2026-11-17 (fifteenth session):** Eyal shared the live address, now in Phase 0. Built 3.11, news sub-tabs: All news (a short version of every section, each with a "More…" link), Filings (40, back to May 2024), Announcements (every saved newsroom item), Industry (30) and Coverage (taller news boxes). The sub-tabs are listed in the site config and shown by a News layout, so the row stays in place between sub-pages. The main News tab stays marked on them, and on a phone the row scrolls to show the open sub-tab. Each source is now fetched as one list that every page takes the newest few from, so new pages add no requests. The build that read the extra filings got one "503" (busy) answer from the SEC, which the fallback handled. Measuring the rate behind it showed the old pacing could let two requests leave 61 ms apart when the program was busy (a peak of 9 in one second, under the limit of 10). Replaced it with a queue, remeasured at no gap under 125 ms and at most 8 a second. Builds are back to 9 SEC requests once filings are saved. Checked every page on desktop and phone in both themes. Claude's workspace cannot open the live site, so live checks stay with Eyal. Merged pull request 13. Next: Eyal's verdict on Phase 3, then Phase 4.
