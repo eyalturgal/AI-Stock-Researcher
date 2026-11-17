@@ -187,6 +187,16 @@ body {
   }
 }
 
+/* TradingView's widgets arrive inside a frame (a page within the page).
+   The price panel's frame is see-through so our background shows behind it.
+   Browsers put a solid white backing behind a see-through frame when the
+   page is in dark mode and the frame does not say it is too. Marking the
+   frame as "light" here makes the two agree, so it stays see-through.
+   The widget still draws its own dark colors when the dark theme is on. */
+.tradingview-widget-container iframe {
+  color-scheme: light;
+}
+
 /* A clear outline for keyboard users, on anything that can be focused. */
 :focus-visible {
   outline: 2px solid var(--color-accent);

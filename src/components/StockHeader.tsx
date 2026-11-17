@@ -6,35 +6,26 @@ import { TradingViewWidget } from "@/components/TradingViewWidget";
 // The opening of every page: which stock this is, what it costs, and four
 // headline figures from its accounts.
 //
-// The price comes from a TradingView widget. The figures on the right come
-// from the SEC. <Suspense> shows gray placeholder bars until they arrive.
+// Left: TradingView's price panel. It already shows the logo, ticker,
+// company name, exchange, price, market cap and P/E, so we do not repeat
+// any of those ourselves.
+// Right: figures from the SEC that the panel does not show. <Suspense>
+// shows gray placeholder bars until they arrive.
 export function StockHeader() {
   return (
-    <section className="shell pb-10 pt-10 sm:pb-12 sm:pt-14">
-      <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-12">
-        <div className="lg:col-span-7">
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-ink-soft">
-            {/* The ticker, in a small gold tag. */}
-            <span className="rounded-md border border-gold/40 bg-gold/15 px-2 py-0.5 text-xs font-semibold tracking-wide text-ink">
-              {stockConfig.ticker}
-            </span>
-            <span>{stockConfig.exchange}</span>
-            <span className="text-ink-faint" aria-hidden="true">
-              ·
-            </span>
-            <span>{stockConfig.industry}</span>
-          </p>
+    <section className="shell pb-10 pt-8 sm:pb-12 sm:pt-10">
+      {/* The page title. Hidden from view because the price panel shows the
+          name, but still there for screen readers and search engines. */}
+      <h1 className="sr-only">
+        {stockConfig.name} ({stockConfig.ticker})
+      </h1>
 
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            {stockConfig.name}
-          </h1>
-
-          <TradingViewWidget
-            widget="symbol-info"
-            className="mt-5"
-            loadingText="Loading the latest price from TradingView."
-          />
-        </div>
+      <div className="grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-12">
+        <TradingViewWidget
+          widget="symbol-info"
+          className="lg:col-span-7"
+          loadingText="Loading the latest price from TradingView."
+        />
 
         <div className="lg:col-span-5">
           <Suspense fallback={<HeadlineStatsLoading />}>

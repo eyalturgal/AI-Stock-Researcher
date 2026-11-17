@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 2 (Real data) is done apart from two small leftovers. Phase 3 (News) is next
-- **Next action:** Eyal: say "go" on Phase 3, and whether the company's SEC filings should be pulled forward into it (Claude's suggestion)
-- **Blocked on:** that answer
+- **Current phase:** Phase 3 (News), at sub-step 3.1: agreeing the news categories. Phase 2 is finished
+- **Next action:** Eyal: confirm or change the news categories and sub-steps written under Phase 3. Then Claude starts 3.2, the source research
+- **Blocked on:** that confirmation
 - **Last updated:** 2026-11-17
 
 ### Done so far
@@ -61,7 +61,7 @@ Each phase ends with something working and visible. Don't start the next phase u
 - [x] Add caching so the site stays within free-tier limits (the SEC is asked about once an hour, and a failure is retried after a minute)
 - [x] Live price and price chart from TradingView's widgets (confirmed working on the live site by Eyal, 2026-11-17)
 - [x] Metrics tab with real data (reported financials from the SEC)
-- [ ] Price-based figures (market cap, P/E): the price panel under the company name may already show them. Check once it is confirmed working, and add a fundamentals panel if not
+- [x] Price-based figures (market cap, P/E): TradingView's price panel under the company name shows them, along with dividend yield and the next earnings date
 - [x] Loading states and error states (gray placeholder bars while loading, a plain message when the SEC or TradingView cannot be reached. Both were tested)
 
 **Eyal's steps to see it:**
@@ -92,11 +92,29 @@ Sources: [SEC webmaster FAQ](https://www.sec.gov/about/webmaster-frequently-aske
 3. **Public and paid:** buy a plan with display rights (Twelve Data's business plan is the cheapest found so far). Our own chart, public, with a monthly cost.
 
 ### Phase 3: News
-- [ ] Stock-specific news feed
-- [ ] Top market news of the day
-- [ ] Industry news for the stock's field (for NVDA: AI and semiconductors), with the field set in the config file
-- [ ] Basic keyword filtering driven by the config file
-- [ ] Credit every source on the site
+Phase 3 gathers and organizes the news. Turning it into AI-written briefs is Phase 5, and it is planned here so Phase 3 collects what that needs.
+
+**The categories (drafted with Eyal, 2026-11-17).** News is sorted by who is speaking, because that decides both how much to trust it and what we are allowed to do with it.
+
+| # | Category | What is in it | How sure it is | Reuse |
+|---|---|---|---|---|
+| A | Official record | SEC filings: annual report (10-K), quarterly report (10-Q), event notices (8-K), which include earnings releases | Certain. The company is legally responsible for it | Free to copy and quote |
+| B | Company announcements | Press releases, product launches, keynotes, earnings calls | First-hand, but written to look good | To be checked |
+| C | Media coverage | Reporting, interviews, analysis, scandals, rumors | Second-hand. Ranges from solid to speculation | Copyrighted. Headlines and links, or our own summaries |
+| D | Industry news | Competitors, suppliers, customers, rules. The industry is set in the stock config | Second-hand | Same as C |
+| E | Market news | Interest rates, the wider economy, big moves in the market | Second-hand | Same as C |
+
+Every item also gets a **topic** (earnings, product, leadership, legal, deals, analyst views) and a **certainty label** (confirmed by an official source, reported by media, rumor or speculation, opinion).
+
+**Sub-steps:**
+- [ ] 3.1 Agree the categories, topics and certainty labels above (waiting for Eyal)
+- [ ] 3.2 Source research for each category, like Phase 2: where it comes from, whether we may show it, and whether we may store and summarize it
+- [ ] 3.3 Category A: the company's SEC filings as a feed, with plain-language labels for each filing type (uses the SEC connection already built)
+- [ ] 3.4 Category B: company announcements, from the source chosen in 3.2
+- [ ] 3.5 Categories C, D and E for reading: TradingView's news widget, the same kind of embed as the chart
+- [ ] 3.6 Categories C, D and E as data our own code can hold, from the source chosen in 3.2. Needed for the AI briefs
+- [ ] 3.7 Decide where news items are stored, since the AI needs to look back over days of items
+- [ ] 3.8 News tab laid out by category, with keyword filtering from the stock config and every source credited
 
 **Done when:** the news tab is useful enough that I'd actually check it.
 
@@ -111,6 +129,7 @@ Sources: [SEC webmaster FAQ](https://www.sec.gov/about/webmaster-frequently-aske
 
 ### Phase 5: Automation and AI research layer
 - [ ] Scheduled jobs that refresh data and news on their own
+- [ ] AI news briefs (Eyal's idea, 2026-11-17): group stories about the same event, then write one brief per event. Each brief says what happened, what is confirmed, what is only reported, where sources disagree, what is still unknown, and links every source. Shown as small cards that open into the full brief. Built as a fixed workflow that runs on a schedule, not a free-roaming agent
 - [ ] AI daily digest: what happened and why it matters
 - [ ] AI bull case and bear case rundowns
 - [ ] AI earnings summaries
@@ -173,6 +192,8 @@ Things I don't know how to do yet. Dive into each one when its phase comes up, a
 - [ ] Which open source data projects to build on: OpenBB and Fincept Terminal (the "open source Bloomberg terminal" projects) get evaluated in Phase 2
 - [ ] How to build the full chart workspace: Lightweight Charts has no drawing tools built in. Options to research: TradingView's larger Advanced Charts library (free but needs their approval), TradingView's embeddable widget, or community plugins
 - [ ] How to package workflows as Claude Code skills, commands or subagents
+- [ ] What AI-written news summaries may contain. Working rule until researched: facts in our own words, short, with a link and credit to each source, never copied sentences or paywalled text. Official filings can be quoted freely. This area of law is unsettled, so check it properly before Phase 5
+- [ ] Should the AI also search the web itself for stories our sources miss? More coverage, but it costs more per run and is less predictable. Decide in Phase 5
 - [ ] Project name and domain
 - [ ] Company logos (Eyal wants them, like other finance sites have): research how those sites get them. Likely a logo service with terms that allow display, or the company's own brand guidelines. For now the site shows a plain tile with the ticker
 - [ ] Check the exact credit wording TradingView asks for (the NOTICE file in their GitHub repo) before the v1 launch
@@ -226,3 +247,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-17 (fifth session):** Eyal added the `SEC_USER_AGENT` setting in Vercel but was unsure about some of the choices there, saw no change on the site (the work was still on the branch), and asked for everything to be merged so it is saved and visible. Merged pull request 4. The widgets go live unverified, with their fallback text as the safety net. Next: Eyal reports what the live site shows, and anything missing gets fixed from there.
 - **2026-11-17 (sixth session):** Eyal confirmed the SEC figures show on the live site, and that the TradingView widgets did not load. Cause: the widgets used TradingView's newer format with a partly guessed address. Rebuilt them in the script-embed format from TradingView's tutorial, with a price panel under the company name and the full chart. Tested in the workspace: the scripts load, the frames appear on every tab, they rebuild in the right theme when switching, and there are no page errors. The live numbers could not be seen here. Merged pull request 5. Next: Eyal confirms on the live site.
 - **2026-11-17 (seventh session):** Eyal confirmed the TradingView price and chart work on the live site and restated the direction: lean on leaders for what they do well, and make AI help and gathered data the site's own angle. No code changed. Leftovers from Phase 2: check whether the price panel shows market cap and P/E, and tidy the company name appearing twice at the top. Next: Phase 3 (News), on Eyal's go.
+- **2026-11-17 (eighth session):** Closed the Phase 2 leftovers. Eyal approved five more TradingView sites for Claude's workspace, so the widgets can now be seen there with live numbers. Confirmed the price panel shows market cap, P/E, dividend yield and the next earnings date. Removed our own repeated ticker and company name from the top (the title stays for screen readers and search engines), and swapped our EPS figure there for revenue growth, since the panel already shows EPS. Found and fixed a bug: in dark mode the price panel had a white background. Merged pull request 6. Then broke Phase 3 into categories and sub-steps from Eyal's description of news, and added his AI news brief idea to Phase 5. Next: Eyal confirms the categories.
