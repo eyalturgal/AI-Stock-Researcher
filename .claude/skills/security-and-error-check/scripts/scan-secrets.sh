@@ -15,8 +15,11 @@ report() {
   if [ "$2" != "0" ]; then found=1; fi
 }
 placeholders='user:password@|you@example\.com'
-history=$(git log --all -p --format='' | grep -v -E "$placeholders")
-files=$(git ls-files | grep -v -E '\.(png|ico|jpg|woff2?|svg)$|package-lock\.json$')
+# This script holds the patterns it searches for, so its own file (and
+# its own past versions) are left out of the search.
+self=".claude/skills/security-and-error-check/scripts/scan-secrets.sh"
+history=$(git log --all -p --format='' -- . ":(exclude)$self" | grep -v -E "$placeholders")
+files=$(git ls-files | grep -v -E '\.(png|ico|jpg|woff2?|svg)$|package-lock\.json$' | grep -v -F "$self")
 
 echo "Files that must never be committed:"
 report ".env files in the git history" "$(git log --all --format='' --name-only | grep -c -E '(^|/)\.env')"
@@ -45,7 +48,7 @@ while IFS='|' read -r label pattern; do
 done <<'PATTERNS'
 private key|-----BEGIN [A-Z ]*PRIVATE KEY
 AWS key|AKIA[0-9A-Z]{16}
-GitHub token|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_
+GitHub token|gh[pousr]_[A-Za-z0-9]{30,}|github_pat[_]
 Anthropic or OpenAI key|sk-(ant-)?[A-Za-z0-9_-]{20,}
 Slack token|xox[abpr]-
 Google key|AIza[0-9A-Za-z_-]{30,}

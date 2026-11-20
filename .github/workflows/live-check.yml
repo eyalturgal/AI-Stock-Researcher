@@ -2,6 +2,9 @@
 # Actions tab on GitHub. If the check fails, it opens an issue (or adds to
 # the one already open), and GitHub emails Eyal about it.
 #
+# GitHub runs scheduled checks when it has room, so in practice this one
+# runs about three times a day, often late.
+#
 # GitHub turns scheduled checks off after 60 days without any activity in
 # the repository. The Actions tab has a button to turn this one back on.
 
