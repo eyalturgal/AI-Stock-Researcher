@@ -33,21 +33,6 @@ function share(value: number | null): string {
   return value === null ? MISSING : formatShare(value);
 }
 
-// The four figures next to the price at the top of every page. These are
-// chosen to add to TradingView's price panel, which already shows EPS,
-// market cap and P/E.
-export function headlineStats(f: Fundamentals, currency: string): Stat[] {
-  return [
-    { label: "Revenue (12 months)", value: money(f.revenueTTM, currency) },
-    { label: "Net income (12 months)", value: money(f.netIncomeTTM, currency) },
-    {
-      label: "Revenue growth, year on year",
-      value: f.revenueGrowthYoY === null ? MISSING : formatPercent(f.revenueGrowthYoY),
-    },
-    { label: "Gross margin", value: share(f.grossMarginTTM) },
-  ];
-}
-
 // The short list on the Overview tab.
 export function keyStats(f: Fundamentals, currency: string): Stat[] {
   return [
@@ -56,6 +41,7 @@ export function keyStats(f: Fundamentals, currency: string): Stat[] {
       label: "Revenue growth, year on year",
       value: f.revenueGrowthYoY === null ? MISSING : formatPercent(f.revenueGrowthYoY),
     },
+    { label: "Gross margin", value: share(f.grossMarginTTM) },
     { label: "Operating margin", value: share(f.operatingMarginTTM) },
     { label: "Net margin", value: share(f.netMarginTTM) },
     { label: "Cash", value: money(f.cash, currency) },
