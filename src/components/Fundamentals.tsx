@@ -1,6 +1,6 @@
 import { stockConfig } from "@/config/stock";
 import { getFundamentals, secCompanyUrl } from "@/lib/sec";
-import { headlineStats, keyStats, statGroups } from "@/lib/stats";
+import { keyStats, statGroups } from "@/lib/stats";
 import { formatDate } from "@/lib/format";
 import { SectionHeader } from "@/components/ui/GlassCard";
 import { StatRow, StatTile } from "@/components/ui/StatTile";
@@ -49,17 +49,17 @@ function Bar({ className }: { className: string }) {
   return <div className={`animate-pulse rounded-md bg-ink/10 ${className}`} />;
 }
 
-// ---------- Top of the page: four headline figures ----------
+// ---------- Overview tab: the short list ----------
 
-export async function HeadlineStats() {
+export async function KeyStats() {
   const fundamentals = await getFundamentals();
   if (!fundamentals) return <DataUnavailable />;
 
   return (
     <div>
-      <dl className="grid grid-cols-2 gap-x-8 gap-y-6">
-        {headlineStats(fundamentals, currency).map((stat) => (
-          <StatTile key={stat.label} stat={stat} size="small" />
+      <dl className="border-b border-line">
+        {keyStats(fundamentals, currency).map((stat) => (
+          <StatRow key={stat.label} stat={stat} />
         ))}
       </dl>
       <SourceNote
@@ -70,38 +70,10 @@ export async function HeadlineStats() {
   );
 }
 
-export function HeadlineStatsLoading() {
-  return (
-    <div className="grid grid-cols-2 gap-x-8 gap-y-6" aria-hidden="true">
-      {[0, 1, 2, 3].map((item) => (
-        <div key={item} className="border-t border-line pt-3">
-          <Bar className="h-4 w-28" />
-          <Bar className="mt-2 h-6 w-20" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ---------- Overview tab: the short list ----------
-
-export async function KeyStats() {
-  const fundamentals = await getFundamentals();
-  if (!fundamentals) return <DataUnavailable />;
-
-  return (
-    <dl className="border-b border-line">
-      {keyStats(fundamentals, currency).map((stat) => (
-        <StatRow key={stat.label} stat={stat} />
-      ))}
-    </dl>
-  );
-}
-
 export function KeyStatsLoading() {
   return (
     <div className="border-b border-line" aria-hidden="true">
-      {[0, 1, 2, 3, 4, 5].map((item) => (
+      {[0, 1, 2, 3, 4, 5, 6].map((item) => (
         <div key={item} className="flex justify-between border-t border-line py-3">
           <Bar className="h-4 w-36" />
           <Bar className="h-4 w-14" />

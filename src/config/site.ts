@@ -6,8 +6,6 @@
 
 export const siteConfig = {
   name: "AI Stock Researcher",
-  // The two letters in the small square next to the site name.
-  mark: "AI",
   description:
     "Charts, fundamentals, filings, news and AI research for a stock, all in one place.",
   // The tabs under the stock header. Each one is a page in src/app.

@@ -44,9 +44,6 @@
   /* Gold, used sparingly as the "money" highlight */
   --color-gold: #f5c451;
 
-  /* Text that sits on top of the brand gradient */
-  --color-on-brand: #05131a;
-
   /* Reserved for "price went up" and "price went down". Never decoration. */
   --color-up: #0ca30c;
   --color-down: #e05252;
@@ -63,7 +60,6 @@
   color-scheme: dark;
 
   /* Emerald to cyan to violet. The signature of the site. */
-  --brand-gradient: linear-gradient(120deg, #34d399, #22d3ee 50%, #a78bfa);
 
   /* The light behind the top of the page. In the dark theme it has no
      color: just a faint lift, like a lamp over a desk. */
@@ -334,14 +330,27 @@ body {
   }
 }
 
-/* --------------------------------------------------------------------------
-   Brand touch: the emerald, cyan and violet gradient, used in one place
-   only (the site mark) so it stays special.
-   -------------------------------------------------------------------------- */
-
-@utility brand-fill {
-  background: var(--brand-gradient);
-  color: var(--color-on-brand);
+/* TradingView's price panel picks its own height, measured once as it
+   loads. On some screens (seen on Windows at 125% scaling) it measures a few
+   pixels short and cuts off its bottom line. These minimums sit about 15 to
+   20px above the height it reports for each of its layouts (measured
+   2026-11-20). It can still make itself taller, never shorter. The rules
+   follow the panel's own width, not the screen's (a container query). */
+.price-panel {
+  container-type: inline-size;
+}
+.price-panel iframe {
+  min-height: 300px; /* narrow: three rows, reports 285px */
+}
+@container (min-width: 500px) {
+  .price-panel iframe {
+    min-height: 255px; /* two rows, reports 240px */
+  }
+}
+@container (min-width: 800px) {
+  .price-panel iframe {
+    min-height: 200px; /* one row, reports about 180px */
+  }
 }
 
 /* People who ask their device for less motion get no transitions. */

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The site's mark for browser tabs: the rising line from the top bar.
+       Dark on light browsers, light on dark ones, matching the two themes
+       (ink and page colors from globals.css). -->
+  <style>
+    .square { fill: #0c1322; }
+    .line { stroke: #eef2f8; }
+    @media (prefers-color-scheme: dark) {
+      .square { fill: #eceef1; }
+      .line { stroke: #101215; }
+    }
+  </style>
+  <rect class="square" width="32" height="32" rx="8"/>
+  <svg x="6" y="6" width="20" height="20" viewBox="0 0 24 24">
+    <polyline class="line" points="4,16 9,11 13,14 20,7" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</svg>
