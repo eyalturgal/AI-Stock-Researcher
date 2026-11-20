@@ -29,7 +29,7 @@ Never print a secret's value, in commands or in the report. The scripts here pri
 ## 3. Does everything still work
 
 1. **Pages.** The `check-pages.js` report: every page in both themes, the widgets appear, the news pages have their items (Filings 40, Industry 30, Announcements everything saved), nothing scrolls sideways on a phone. Look at screenshots of anything new, in both themes.
-2. **Fallbacks.** Every outside source must have one. Stop the database (`pg_ctlcluster 16 main stop`) and build: it must log "DATABASE UPDATE FAILED" and still build every page from the live sources. Start the database again afterwards. A build without `NODE_USE_ENV_PROXY=1` cannot reach the SEC: the pages must show the "could not be loaded" messages, not crash.
+2. **Fallbacks.** Every outside source must have one. Stop the database (`pg_ctlcluster 16 main stop`) and build: it must log "DATABASE UPDATE FAILED" and still build every page from the live sources. Start the database again afterwards. Then the SEC: delete `.next/cache/fetch-cache` first (otherwise the build reuses the answers the last build saved and never asks the SEC), and build without `NODE_USE_ENV_PROXY=1`, so the SEC cannot be reached. The build must succeed, the built pages (`.next/server/app/*.html`) must show the "could not be loaded" messages, the route table must show a 1 minute refresh, and the announcements must still come from the database. Then build normally again.
 3. **SEC pacing.** `node .claude/skills/security-and-error-check/scripts/sec-rate.mjs build.log` on a build that read many documents (after the stop-the-database build is a good one). At most 8 in any second. With the database full, a build makes about 9 requests in all.
 4. **Anything added since the last check.** Re-test it as a visitor would, and read its part of ROADMAP.md for what it should do.
 
@@ -39,7 +39,11 @@ Add a dated results table to ROADMAP.md, in the section of the phase just finish
 
 ## Known results (update when they change)
 
-- Accepted library advisories, developer tools only (2026-11-17): `esbuild` via drizzle-kit (only affects a development server that is never run; its only fix breaks drizzle-kit) and `picomatch` (no fixed version yet; needs attacker-written file patterns). Take them off this list once a fix exists.
+- Accepted library advisory, developer tools only: `esbuild` via drizzle-kit (only affects a development server that is never run; its only fix breaks drizzle-kit). Take it off this list once a fix exists. `picomatch`, accepted on 2026-11-17, was no longer flagged on 2026-11-20.
+- GitHub runs the scheduled live check when it has room: in its first three days it ran about three times a day (around 02, 11 and 20 UTC), not every three hours.
+- Inside TradingView's frames, a request to `widget-sheriff.tradingview-widget.com` can show as cancelled (`ERR_ABORTED`). That is TradingView's own code, and the widgets load.
+- Vercel's analytics script skips automated browsers, so the test browser sends no page view. Visitor counts are in the project's Analytics tab on Vercel.
+- Next.js's route table uses box-drawing characters: search it with `LC_ALL=C.UTF-8 grep`, or the search finds nothing.
 - Known console error in Claude's workspace only: `snowplow-pixel.tradingview.com` fails from inside TradingView's frames. That is TradingView's visitor tracking, blocked by the workspace's network, not by the site.
 - The workspace's test browser draws blur poorly. Check a blur by its computed style, not by a screenshot.
 - The SEC request queue covers one running program. Next.js builds fewer than 25 pages in one worker. Past 25 pages (Phase 9), see the open question in ROADMAP.md about pacing with several build workers.
