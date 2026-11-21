@@ -6,9 +6,9 @@ This file is the source of truth for where the project stands. Update it at the 
 
 ## Current status
 
-- **Current phase:** Phase 5 (Automation and AI research layer), not started. v1 was launched on 2026-11-20, which closed Phase 4
-- **Next action:** Start Phase 5 in a fresh session on the "AI-Stock-Researcher" environment. First check that its setup script worked (packages installed, `stockdb` there) and that its two variables, `SEC_USER_AGENT` and `DATABASE_URL`, are set. Then, with Eyal, break Phase 5 into small sub-steps (as Phase 3 was) around his decisions (decision log, 2026-11-20 and 2026-11-21): (1) make the site private: find the options on Vercel's Hobby plan, or a login, and keep the live-site monitor working; (2) a cost test: look up current prices (load the `claude-api` skill), estimate what each kind of AI piece costs on two or three cheap models, then run a small real test, so Eyal can pick the model and set the budget from real numbers; (3) write the AI brief instruction set together. The model stays in one setting so everything works the same with any model. Scheduled jobs run on GitHub Actions (3.7)
-- **Blocked on:** nothing
+- **Current phase:** Phase 5 (Automation and AI research layer), started 2026-11-21. Its sub-steps are proposed and wait for Eyal's OK
+- **Next action:** Eyal reviews the proposed sub-steps (5.1 to 5.11 below) and picks the models for the cost test. Then, for 5.1, he sets up the AI provider account: a small amount of credit, a monthly spend limit, and an API key saved through the workspace's secure form (never in the chat). Then Claude writes the test script and runs the small real test
+- **Blocked on:** Eyal's OK on the sub-steps, and the API key
 - **Last updated:** 2026-11-21
 
 ### Done so far
@@ -210,20 +210,58 @@ Considered and left out: the rest of the SMH semiconductor ETF (about 25 stocks,
 **Done when:** v1 is publicly launched and I'd be comfortable sending the link to anyone. Met: Eyal launched v1 on 2026-11-20.
 
 ### Phase 5: Automation and AI research layer
-- [ ] Make the site private (Eyal, 2026-11-20: "a project for myself and to learn"). Find how on Vercel's Hobby plan, or add a login, and keep the live-site monitor working
-- [ ] Cost test before setting a budget (Eyal, 2026-11-21): look up current prices, estimate what each kind of AI piece costs on two or three cheap models, then run a small real test. Eyal watches the spending during testing and sets the budget from the results. Before any AI job runs on a schedule, set a spending limit with the AI provider
-- [ ] Use the database from 3.9 for the collector's items and the AI briefs
-- [ ] Scheduled jobs that refresh data and news on their own: a collector on GitHub Actions, about every 30 minutes, storing filings, attached press releases and newsroom items so the AI can look back over days
-- [ ] AI news briefs (Eyal's idea, 2026-11-17): group stories about the same event, then write one brief per event. Each brief says what happened, what is confirmed, what is only reported, where sources disagree, what is still unknown, and links every source. Shown as small cards that open into the full brief. Built as a fixed workflow that runs on a schedule, not a free-roaming agent. Eyal's additions: use short direct quotes, credited and linked, so nobody's words get reworded wrong. Sensitive topics (leadership, legal, scandals, rumors) get stricter rules: only what a named source says, labeled as reported until an official source confirms it. The AI may also search the web for stories the regular sources miss. Decided in 3.2: media coverage is found with Claude's web search and read with web fetch, since no news source allows our code to store it
-- [ ] AI daily digest: what happened and why it matters
-- [ ] AI bull case and bear case rundowns
-- [ ] AI earnings summaries
-- [ ] AI research papers that summarize one part of the picture (a filing, an earnings call)
-- [ ] Every AI-written piece shows its sources and a "not financial advice" note
-- [ ] Save each of these as reusable skills/agents/workflows that take a ticker as input
-- [ ] Security and error check: a heavy phase (an AI key, AI costs, scheduled jobs)
+Phase 5 adds the AI layer: a scheduled job gathers the news, and AI writes research from it. The sub-steps below were proposed on 2026-11-21, with the cost test first at Eyal's request, and wait for his OK.
+
+**Rules for every AI-written piece:** it shows its sources and a "not financial advice" note, and never tells anyone to buy or sell. The model is one setting, so everything works the same with any model. No AI job runs on a schedule until a spending limit is set with the AI provider (Eyal, 2026-11-21).
+
+**Sub-steps:**
+- [ ] 5.1 Cost test before setting a budget (Eyal, 2026-11-21). First because it puts nothing on the site. Eyal watches the spending during testing and sets the budget from the results
+  - [x] Current prices, from Anthropic's own pages (2026-11-21, below)
+  - [x] Estimate per piece and per month on Haiku 5.5, Sonnet 5.5 and Opus 5.5, from the real sizes of NVIDIA's documents (2026-11-21, below)
+  - [ ] Eyal: an AI provider account with a small amount of credit, a monthly spend limit, and an API key saved through the workspace's secure form
+  - [ ] Small real test: an earnings summary (third quarter of fiscal 2027, released 2026-11-17) and a news brief on a real event from the same week, on each model, logging the real tokens and cost. The outputs stay out of the public repo
+  - [ ] Eyal compares the outputs, picks a model for each kind of piece and sets the monthly budget
+- [ ] 5.2 Make the site private (Eyal, 2026-11-20: "a project for myself and to learn"), before the first AI piece goes on the live site. Find how on Vercel's Hobby plan, or add a login, and keep the live-site monitor working
+- [ ] 5.3 Write the AI instruction set together: Eyal's principles (decision log, 2026-11-20), the rules already decided for quotes and sensitive topics, and the open question on what AI-written briefs may contain
+- [ ] 5.4 Collector on GitHub Actions, about every 30 minutes: stores filings, attached press releases and newsroom items in the database from 3.9, so the AI can look back over days. The repo is public, so its job logs are too: they never print secrets or AI-written text
+- [ ] 5.5 Earnings summaries, the first AI piece end to end. The simplest piece (official documents only, no web search), so it proves the whole path: gather, write, store, show on the site
+- [ ] 5.6 AI news briefs (Eyal's idea, 2026-11-17): group stories about the same event, then write one brief per event. Each brief says what happened, what is confirmed, what is only reported, where sources disagree, what is still unknown, and links every source. Shown as small cards that open into the full brief. Built as a fixed workflow that runs on a schedule, not a free-roaming agent. Eyal's additions: use short direct quotes, credited and linked, so nobody's words get reworded wrong. Sensitive topics (leadership, legal, scandals, rumors) get stricter rules: only what a named source says, labeled as reported until an official source confirms it. The AI may also search the web for stories the regular sources miss. Decided in 3.2: media coverage is found with Claude's web search and read with web fetch, since no news source allows our code to store it
+- [ ] 5.7 AI daily digest: what happened and why it matters
+- [ ] 5.8 AI bull case and bear case rundowns
+- [ ] 5.9 AI research papers that summarize one part of the picture (a filing, an earnings call)
+- [ ] 5.10 Save each piece as a reusable skill, agent or workflow that takes a ticker as input
+- [ ] 5.11 Security and error check: a heavy phase (an AI key, AI costs, scheduled jobs)
 
 **Done when:** the site updates its research every day without me touching it.
+
+**5.1 cost test, first findings (2026-11-21).** Prices read on 2026-11-21 from Anthropic's [pricing page](https://platform.claude.com/docs/en/about-claude/pricing), its [web search](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool) and [web fetch](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool) pages and its [rate limits](https://platform.claude.com/docs/en/api/rate-limits) page. Prices are per million tokens. A token is roughly 3 characters of English text on these models.
+
+| | Haiku 5.5 | Sonnet 5.5 | Opus 5.5 |
+|---|---|---|---|
+| Input (what the model reads) | $0.10, or $0.50 when a prompt is over 100,000 tokens | $2 | $4 |
+| Output (what it writes, thinking included) | $0.50, or $2.50 over 100,000 | $10 | $20 |
+| Input read back from the cache | $0.01 | $0.10 | $0.20 |
+| Batch (results within 24 hours, most within 1) | Half price | Half price | Half price |
+
+- Web search: $10 per 1,000 searches on every model, in batches too. The results also count as input tokens. A failed search is free. Web fetch: input tokens only. Both work on all three models.
+- Thinking is billed as output (`usage.output_tokens_details.thinking_tokens` shows how much). The `effort` setting is the main control.
+- New accounts get free credits to test the API (the page does not say how much). Counting tokens is free.
+- Spend limit: Console, Settings, Spend limits. Past the limit, requests are refused until the next month or until the limit is raised.
+
+Measured sizes (NVIDIA's documents from the SEC, characters divided by 3): earnings release for the third quarter of fiscal 2027 about 9K tokens, CFO commentary about 7K, latest 10-Q about 49K (its management discussion about 13K), latest 10-K about 114K (risk factors about 41K). A whole 10-K is over Haiku's 100,000-token line, so research papers would send sections.
+
+Estimate per piece. Guesses: about 3K tokens of instructions, 4K to 11K tokens written (thinking included), and 3 searches plus 3 pages per news brief.
+
+| Piece | Haiku 5.5 | Sonnet 5.5 | Opus 5.5 |
+|---|---|---|---|
+| Earnings summary (release and CFO commentary) | $0.004 | $0.09 | $0.18 |
+| News brief (one event) | $0.04 to $0.12 | $0.15 to $0.38 | $0.27 to $0.74 |
+| Daily digest | $0.003 | $0.07 | $0.13 |
+| Bull and bear case | $0.01 | $0.23 | $0.46 |
+| Research paper (sections of a 10-K) | $0.02 | $0.30 | $0.59 |
+| A month: 90 briefs, 30 digests, 4 bull and bear, 2 papers, 4 earnings summaries a year | $3 to $11 | $17 to $38 | $31 to $73 |
+
+The news briefs are most of the bill, and on Haiku the search fees alone come to $2.70 a month. Their range is wide because it is not known how much of the gathered material the model reads again at each search step. The real test measures that, along with how many searches each model makes and how much it thinks.
 
 ### Phase 6: AI chatbot
 - [ ] Chatbot answers questions using the site's own data (prices, metrics, news, research)
@@ -401,3 +439,4 @@ Add a short entry after each work session: what got done, what broke, what's nex
 - **2026-11-20 (twenty-second session):** Eyal confirmed the live fixes and launched v1, closing Phase 4. He asked whether to start a new session for Phase 5, with this one's context 72% full. Advised yes: Phase 5 is a new layer, and CLAUDE.md, this roadmap and the two skills carry everything a new session needs. Wrote the Phase 5 starting point into "Current status". Merged pull request 22. Next: Phase 5 in a fresh session, starting with its sub-steps and Eyal's AI budget and public-or-private decisions.
 - **2026-11-20 (twenty-third session):** Eyal decided Phase 5's basics: the site will be private, the AI briefs follow his principles (neutral, for perspective, formats to choose from, no repetition, cross-checked facts, trust labels), a cheap model first, and software that works the same with any model. Recorded them, and made "make the site private" the first Phase 5 task. To make new sessions work straight away, tested and saved a setup script on the environment (packages, and a practice database reached with no password) plus its `DATABASE_URL`. Eyal adds `SEC_USER_AGENT` himself, since it holds his email. The script runs for the first time in the next fresh session. Merged pull request 23. Next: Phase 5 in a new session.
 - **2026-11-21 (twenty-fourth session):** Eyal chose to set the AI budget after a cost test, watching the spending himself while testing. Added the cost test as an early Phase 5 task, with a provider spending limit before anything runs on a schedule. At his request, added `SEC_USER_AGENT` to the environment's variables, so new sessions can load SEC data from the start. Merged pull request 24. Next: Phase 5 in a new session.
+- **2026-11-21 (twenty-fifth session):** Started Phase 5 in a fresh session. Checked the new-session setup: the setup script had installed the packages, started Postgres and created `stockdb`, both variables were set, lint passed, and a build on the empty database created the tables and loaded live SEC data (123 requests, none failed, no "could not be loaded" message). Proposed Phase 5 sub-steps, with the cost test first at Eyal's request. For the cost test, read current prices from Anthropic's own pricing and tool pages, measured the real size of NVIDIA's latest earnings release, CFO commentary, 10-Q and 10-K, and estimated each kind of AI piece on Haiku 5.5, Sonnet 5.5 and Opus 5.5 (5.1 findings). The news briefs are most of the cost and the biggest unknown. No code changed. Next: Eyal's OK on the sub-steps, then an API account with a spend limit for the real test.
